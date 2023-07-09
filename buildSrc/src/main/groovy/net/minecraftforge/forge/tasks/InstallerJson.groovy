@@ -25,7 +25,7 @@ abstract class InstallerJson extends DefaultTask {
     InstallerJson() {
         getLauncherJsonName().convention('/version.json')
         getLogo().convention('/big_logo.png')
-        getMirrors().convention('https://files.minecraftforge.net/mirrors-2.0.json')
+        getMirrors().convention('https://mirrors.neoforged.net/')
         getWelcome().convention("Welcome to the simple ${project.name.capitalize()} installer.")
                 
         getOutput().convention(project.layout.buildDirectory.file('install_profile.json'))
@@ -61,7 +61,7 @@ abstract class InstallerJson extends DefaultTask {
                 downloads: [
                     artifact: [
                         path: path,
-                        url: "https://maven.minecraftforge.net/${path}",
+                        url: "https://maven.neoforged.net/releases/${path}",
                         sha1: child.archiveFile.get().asFile.sha1(),
                         size: child.archiveFile.get().asFile.length()
                     ]

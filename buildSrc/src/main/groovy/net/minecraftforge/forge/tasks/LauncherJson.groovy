@@ -61,7 +61,7 @@ abstract class LauncherJson extends DefaultTask {
                 downloads: [
                     artifact: [
                         path: path,
-                        url: "https://maven.minecraftforge.net/${path}",
+                        url: "https://maven.neoforged.net/releases/${path}",
                         sha1: it.archiveFile.get().asFile.sha1(),
                         size: it.archiveFile.get().asFile.length()
                     ]

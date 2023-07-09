@@ -79,7 +79,7 @@ public class Util {
 			def path = "${folder}${filename}"
 			def url = "https://libraries.minecraft.net/${path}"
 			if (!checkExists(url)) {
-				url = "https://maven.minecraftforge.net/${path}"
+				url = "https://maven.neoforged.net/releases/${path}"
 			}
 			ret[key] = [
 				name: "${art.group}:${art.name}:${art.version}" + (art.classifier == null ? '' : ":${art.classifier}") + (art.extension == 'jar' ? '' : "@${art.extension}"),
@@ -143,7 +143,7 @@ public class Util {
 	}
 
     static String getLatestForgeVersion(mcVersion) {
-        final json = new JsonSlurper().parseText(new URL('https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json').getText('UTF-8'))
+        final json = new JsonSlurper().parseText(new URL('https://maven.neoforged.net/releases/net/neoforged/forge/promotions_slim.json').getText('UTF-8'))
         final ver = json.promos["$mcVersion-latest"]
         ver === null ? null : (mcVersion + '-' + ver)
     }
