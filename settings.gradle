@@ -24,10 +24,8 @@ rootProject.name = 'NeoForge'
 
 include ':mcp'
 include ':clean'
-include ':fmlonly'
 include ':forge'
 
 project(":mcp").projectDir = file("projects/mcp")
 project(":clean").projectDir = file("projects/clean")
-project(":fmlonly").projectDir = file("projects/fmlonly")
 project(":forge").projectDir = file("projects/forge")
