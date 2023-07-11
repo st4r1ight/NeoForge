@@ -22,13 +22,6 @@ plugins {
 
 rootProject.name = 'NeoForge'
 
-include 'fmlloader'
-include 'fmlcore'
-include 'mclanguage'
-include 'javafmllanguage'
-include 'lowcodelanguage'
-include 'fmlearlydisplay'
-
 include ':mcp'
 include ':clean'
 include ':fmlonly'

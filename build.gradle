@@ -373,7 +373,7 @@ def sharedFmlonlyForge = { Project prj ->
             modules.add(lib.name)
         }
         for (child in prj.ext.PACKED_DEPS) {
-            libraries.add(Util.getMavenDep(rootProject.tasks.findByPath(child)))
+            libraries.add(child)
         }
         //libraries.add("${project.group}:${project.name}:${project.version}:launcher")
         inject = '' // We don't have a userdev sourceset anymore. Empty as a gradle workaround...
@@ -446,7 +446,7 @@ def sharedFmlonlyForge = { Project prj ->
         }
 
         // SecureJarHandler bootstrap values.
-        run.property 'ignoreList', prj.configurations.moduleonly.files.collect {it.name.replaceAll(/([-_]([.\d]*\d+)|\.jar$)/, '') }.join(',') + ",client-extra,fmlcore,javafmllanguage,lowcodelanguage,mclanguage,${prj.name}-"
+        run.property 'ignoreList', prj.configurations.moduleonly.files.collect {it.name.replaceAll(/([-_]([.\d]*\d+)|\.jar$)/, '') }.join(',') + ",client-extra,${prj.name}-"
         // FIXME: Without this jna doesn't work at runtime. Someone figure out why please?
         run.property 'mergeModules', 'jna-5.10.0.jar,jna-platform-5.10.0.jar'
         if (userdevRuns.contains(run)) {
@@ -514,7 +514,7 @@ def sharedFmlonlyForge = { Project prj ->
         doLast {
             def CLASS_PATH = Util.getArtifacts(prj, prj.configurations.installer, false).values().collect{"libraries/${it.downloads.artifact.path}"} +
             [
-                'libraries/' + Util.getMavenPath(rootProject.tasks.findByPath(':fmlloader:jar')),
+                'libraries/' + Util.getMavenPath(prj, "net.neoforged.fancymodloader:loader:${fancy_mod_loader_version}"),
                 "libraries/net/minecraft/server/${MC_VERSION}-${MCP_VERSION}/server-${MC_VERSION}-${MCP_VERSION}-extra.jar"
             ]
             def claimed = CLASS_PATH.collect{ it.rsplit('/', 2)[0] }.toSet() // Allow us to override versions
@@ -562,7 +562,14 @@ project(':fmlonly') {
 
     ext {
         MCP_ARTIFACT = project(':mcp').mcp.config.get()
-        PACKED_DEPS = [':fmlcore:jar', ':fmlloader:jar', ':fmlearlydisplay:jar', ':javafmllanguage:jar', ':lowcodelanguage:jar', ':mclanguage:jar']
+        PACKED_DEPS = [
+                ":net.neoforged.fancymodloader:core:${fancy_mod_loader_version}",
+                ":net.neoforged.fancymodloader:loader:${fancy_mod_loader_version}",
+                ":net.neoforged.fancymodloader:earlydisplay:${fancy_mod_loader_version}",
+                ":net.neoforged.fancymodloader:language-java:${fancy_mod_loader_version}",
+                ":net.neoforged.fancymodloader:language-lowcode:${fancy_mod_loader_version}",
+                ":net.neoforged.fancymodloader:language-minecraft:${fancy_mod_loader_version}",
+        ]
         MAVEN_PATH = "${group.replace('.', '/')}/${project.name}/${VERSION}"
     }
 
@@ -588,12 +595,12 @@ project(':fmlonly') {
 
     // TODO: Better coordination between project dependencies and the installer.
     dependencies {
-        implementation project(':fmlcore')
-        implementation project(':fmlloader')
-        implementation project(':fmlearlydisplay')
-        implementation project(':javafmllanguage')
-        implementation project(':lowcodelanguage')
-        implementation project(':mclanguage')
+        implementation "net.neoforged.fancymodloader:core:${fancy_mod_loader_version}"
+        implementation "net.neoforged.fancymodloader:loader:${fancy_mod_loader_version}"
+        implementation "net.neoforged.fancymodloader:earlydisplay:${fancy_mod_loader_version}"
+        implementation "net.neoforged.fancymodloader:language-java:${fancy_mod_loader_version}"
+        implementation "net.neoforged.fancymodloader:language-lowcode:${fancy_mod_loader_version}"
+        implementation "net.neoforged.fancymodloader:language-minecraft:${fancy_mod_loader_version}"
         runtimeOnly "cpw.mods:bootstraplauncher:${BOOTSTRAPLAUNCHER_VERSION}"
     }
     dependencies sharedDeps
@@ -627,7 +634,10 @@ project(':fmlonly') {
     sharedFmlonlyForge.call(project)
 
     task launcherJson(type: LauncherJson) {
-        packedDependencies = [':fmlloader:jar',':fmlearlydisplay:jar']
+        packedDependencies = [
+                ":net.neoforged.fancymodloader:loader:${fancy_mod_loader_version}",
+                ":net.neoforged.fancymodloader:earlydisplay:${fancy_mod_loader_version}",
+        ]
         doFirst {
             def fmlonly_client = project(':fmlonly').patcher.runs.fmlonly_client
             json = [
@@ -869,9 +879,6 @@ project(':fmlonly') {
             }
         }
     }
-
-    // Since we need the modules in the bootstrap, we need to make sure they are compiled before we do each run
-    afterEvaluate { prepareRuns.dependsOn(PACKED_DEPS) }
 }
 
 project(':forge') {
@@ -926,7 +933,14 @@ project(':forge') {
         // Essentially, the same as the old, except dropping the first number, and the builds are no longer unique.
         MCP_ARTIFACT = project(':mcp').mcp.config.get()
         VERSION_JSON = project(':mcp').file('build/mcp/downloadJson/version.json')
-        PACKED_DEPS = [':fmlcore:jar', ':fmlloader:jar', ':fmlearlydisplay:jar', ':javafmllanguage:jar', ':lowcodelanguage:jar', ':mclanguage:jar']
+        PACKED_DEPS = [
+                ":net.neoforged.fancymodloader:core:${fancy_mod_loader_version}",
+                ":net.neoforged.fancymodloader:loader:${fancy_mod_loader_version}",
+                ":net.neoforged.fancymodloader:earlydisplay:${fancy_mod_loader_version}",
+                ":net.neoforged.fancymodloader:language-java:${fancy_mod_loader_version}",
+                ":net.neoforged.fancymodloader:language-lowcode:${fancy_mod_loader_version}",
+                ":net.neoforged.fancymodloader:language-minecraft:${fancy_mod_loader_version}",
+        ]
         MAVEN_PATH = "${group.replace('.', '/')}/${project.name}/${VERSION}"
     }
 
@@ -944,12 +958,12 @@ project(':forge') {
         testImplementation 'org.junit.vintage:junit-vintage-engine:5.+'
         testImplementation 'org.opentest4j:opentest4j:1.2.0' // needed for junit 5
         testImplementation 'org.hamcrest:hamcrest-all:1.3' // needs advanced matching for list order
-        implementation project(':fmlcore')
-        implementation project(':fmlloader')
-        implementation project(':fmlearlydisplay')
-        implementation project(':javafmllanguage')
-        implementation project(':lowcodelanguage')
-        implementation project(':mclanguage')
+        implementation "net.neoforged.fancymodloader:core:${fancy_mod_loader_version}"
+        implementation "net.neoforged.fancymodloader:loader:${fancy_mod_loader_version}"
+        implementation "net.neoforged.fancymodloader:earlydisplay:${fancy_mod_loader_version}"
+        implementation "net.neoforged.fancymodloader:language-java:${fancy_mod_loader_version}"
+        implementation "net.neoforged.fancymodloader:language-lowcode:${fancy_mod_loader_version}"
+        implementation "net.neoforged.fancymodloader:language-minecraft:${fancy_mod_loader_version}"
         runtimeOnly "cpw.mods:bootstraplauncher:${BOOTSTRAPLAUNCHER_VERSION}"
     }
     dependencies sharedDeps
@@ -1139,30 +1153,6 @@ project(':forge') {
                 'Implementation-Title':     'MCP',
                 'Implementation-Version':   MCP_VERSION,
                 'Implementation-Vendor':    'Forge'
-            ] as LinkedHashMap,
-            'net/minecraftforge/fml/javafmlmod/': [
-                'Specification-Title':      'Mod Language Provider',
-                'Specification-Vendor':     'Forge Development LLC',
-                'Specification-Version':    '1',
-                'Implementation-Title':     'FML Java Mod',
-                'Implementation-Version':   SPEC_VERSION,
-                'Implementation-Vendor':    'Forge'
-            ] as LinkedHashMap,
-            'net/minecraftforge/fml/mclanguageprovider/': [
-                'Specification-Title':      'Mod Language Provider',
-                'Specification-Vendor':     'Forge Development LLC',
-                'Specification-Version':    '1',
-                'Implementation-Title':     'Minecraft Language Mod Provider',
-                'Implementation-Version':   '1',
-                'Implementation-Vendor':    'Forge'
-            ] as LinkedHashMap,
-            'net/minecraftforge/fml/loading/': [
-                'Specification-Title':      'Launcher',
-                'Specification-Vendor':     'Forge Development LLC',
-                'Specification-Version':    '1',
-                'Implementation-Title':     'FML Launcher',
-                'Implementation-Version':   SPEC_VERSION,
-                'Implementation-Vendor':    'Forge'
             ] as LinkedHashMap
         ]
     }
@@ -1316,7 +1306,8 @@ project(':forge') {
         baseLibraries.from(project.tasks.named('createJoinedSRG').flatMap { it.output })
 
         inputJar = project.tasks.named('reobfJar').flatMap { it.output }
-        concreteLibraries.from(project.PACKED_DEPS.collect { project.rootProject.tasks.getByPath(it).archiveFile })
+
+        concreteLibraries.from(Util.createConfiguration(PACKED_DEPS))
 
         commonLibraries.from(project.configurations.minecraftImplementation)
         commonLibraries.from(project.configurations.installer)
@@ -1324,7 +1315,11 @@ project(':forge') {
     }
 
     task launcherJson(type: LauncherJson) {
-        packedDependencies = [':fmlloader:jar',':fmlearlydisplay:jar']
+        packedDependencies = [
+                ":net.neoforged.fancymodloader:loader:${fancy_mod_loader_version}",
+                ":net.neoforged.fancymodloader:earlydisplay:${fancy_mod_loader_version}",
+        ]
+
         doFirst {
             def forge_client = project(':forge').patcher.runs.forge_client
             json = [
@@ -1680,9 +1675,6 @@ project(':forge') {
 
     tasks.named('javadoc', Javadoc).configure {
         description 'Generates the combined javadocs for the FML projects and the main Forge project'
-        var includedProjects = [ ':fmlcore', ':fmlloader', ':javafmllanguage', ':mclanguage' ]
-        source includedProjects.collect { project(it).sourceSets.main.allJava }
-        classpath = classpath + files(includedProjects.collect { project(it).sourceSets.main.compileClasspath })
 
         var docsDir = rootProject.file('src/docs/')
         inputs.dir(docsDir)
@@ -1710,27 +1702,6 @@ project(':forge') {
             ]
 
             groups = [
-                'Forge Mod Loader': [
-                    'net.minecraftforge.fml.common.asm*',
-                    'net.minecraftforge.fml.loading*',
-                    'net.minecraftforge.fml.server*'
-                ],
-                'FML Core':  [
-                    'net.minecraftforge.fml',
-                    'net.minecraftforge.fml.config*',
-                    'net.minecraftforge.fml.event*',
-                    'net.minecraftforge.fml.util*'
-                ],
-                'FML Common': [
-                    'net.minecraftforge.fml.core',
-                    'net.minecraftforge.fml.event.config',
-                    'net.minecraftforge.fml.event.lifecycle'
-                ],
-                'FML Java/MC Language Providers': [
-                    'net.minecraftforge.fml.common',
-                    'net.minecraftforge.fml.javafmlmod',
-                    'net.minecraftforge.fml.mclanguageprovider'
-                ],
                 'Minecraft Forge API': [
                     'net.minecraftforge*'
                 ]
@@ -1767,8 +1738,6 @@ project(':forge') {
             }
         }
     }
-    // Since we need the modules in the bootstrap, we need to make sure they are compiled before we do each run
-    afterEvaluate { prepareRuns.dependsOn(PACKED_DEPS) }
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation

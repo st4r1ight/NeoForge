@@ -30,18 +30,9 @@ abstract class LauncherJson extends DefaultTask {
     LauncherJson() {
         getOutput().convention(project.layout.buildDirectory.file('version.json'))
 
-        dependsOn(':fmlloader:jar', 'universalJar')
+        dependsOn('universalJar')
         getInput().from(project.tasks.universalJar.archiveFile,
-                project.project(':fmlloader').jar.archiveFile,
                 vanilla)
-                
-        project.afterEvaluate {
-            packedDependencies.get().forEach {
-                def jarTask = project.rootProject.tasks.findByPath(it)
-                dependsOn(jarTask)
-                input.from jarTask.archiveFile
-            }
-        }
     }
 
     @TaskAction
@@ -52,9 +43,10 @@ abstract class LauncherJson extends DefaultTask {
         getArtifacts(project, project.configurations.installer, false).each { key, lib -> libs[key] = lib }
         getArtifacts(project, project.configurations.moduleonly, false).each { key, lib -> libs[key] = lib }
 
-        packedDependencies.get().collect{ project.rootProject.tasks.findByPath(it) }.forEach {
-            def path = Util.getMavenPath(it)
-            def key = Util.getMavenDep(it)
+        packedDependencies.get().forEach {
+            def path = Util.getMavenPath(project, it)
+            def key = Util.getMavenDep(project, it)
+            def file = Util.getMavenFile(project, it)
             
             libs[key] = [
                 name: key,
@@ -62,8 +54,8 @@ abstract class LauncherJson extends DefaultTask {
                     artifact: [
                         path: path,
                         url: "https://maven.neoforged.net/releases/${path}",
-                        sha1: it.archiveFile.get().asFile.sha1(),
-                        size: it.archiveFile.get().asFile.length()
+                        sha1: file.sha1(),
+                        size: file.length()
                     ]
                 ]
             ]

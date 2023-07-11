@@ -40,30 +40,24 @@ abstract class InstallerJson extends DefaultTask {
             dependsOn(tsk)
             input.from(tsk.output)
         }
-
-        
-        project.afterEvaluate {
-            (packedDependencies.get().collect{ project.rootProject.tasks.findByPath(it) } + [project.universalJar]).forEach {
-                dependsOn(it)
-                input.from it.archiveFile
-            }
-        }
     }
 
     @TaskAction
     protected void exec() {
         def libs = libraries
-        for (def child : packedDependencies.get().collect{ project.rootProject.tasks.findByPath(it) } + [project.universalJar]) {
-            def dep = Util.getMavenDep(child)
-            def path = Util.getMavenPath(child)
+        packedDependencies.get().forEach {
+            def path = Util.getMavenPath(project, it)
+            def dep = Util.getMavenDep(project, it)
+            def file = Util.getMavenFile(project, it)
+
             libs.put(dep.toString(), [
                 name: dep,
                 downloads: [
                     artifact: [
                         path: path,
                         url: "https://maven.neoforged.net/releases/${path}",
-                        sha1: child.archiveFile.get().asFile.sha1(),
-                        size: child.archiveFile.get().asFile.length()
+                        sha1: file.sha1(),
+                        size: file.length()
                     ]
                 ]
             ])
