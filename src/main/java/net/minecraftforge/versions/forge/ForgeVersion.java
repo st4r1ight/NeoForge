@@ -27,7 +27,7 @@ public class ForgeVersion
 
     static {
         LOGGER.debug(CORE, "Forge Version package {} from {}", ForgeVersion.class.getPackage(), ForgeVersion.class.getClassLoader());
-        String vers = JarVersionLookupHandler.getImplementationVersion(ForgeVersion.class).orElse(FMLLoader.versionInfo().forgeVersion());
+        String vers = JarVersionLookupHandler.getImplementationVersion(ForgeVersion.class).orElse(FMLLoader.versionInfo().mcAndForgeVersion());
         if (vers == null) throw new RuntimeException("Missing forge version, cannot continue");
         String spec = JarVersionLookupHandler.getSpecificationVersion(ForgeVersion.class).orElse(System.getenv("FORGE_SPEC"));
         if (spec == null) throw new RuntimeException("Missing forge spec, cannot continue");
