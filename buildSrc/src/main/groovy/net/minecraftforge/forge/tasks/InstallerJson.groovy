@@ -40,6 +40,11 @@ abstract class InstallerJson extends DefaultTask {
             dependsOn(tsk)
             input.from(tsk.output)
         }
+
+        project.afterEvaluate {
+            dependsOn(project.tasks.universalJar)
+            input.from it.archiveFile
+        }
     }
 
     @TaskAction
