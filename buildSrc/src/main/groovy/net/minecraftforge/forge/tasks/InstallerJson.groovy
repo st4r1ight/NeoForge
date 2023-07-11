@@ -43,7 +43,7 @@ abstract class InstallerJson extends DefaultTask {
 
         project.afterEvaluate {
             dependsOn(project.tasks.universalJar)
-            input.from it.archiveFile
+            input.from project.tasks.universalJar.archiveFile
         }
     }
 
