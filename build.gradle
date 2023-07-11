@@ -979,7 +979,6 @@ project(':forge') {
         doFirst {
             def forge_client = project(':forge').patcher.runs.forge_client
             json = [
-                _comment_: comment,
                 id: id,
                 time: timestamp,
                 releaseTime: timestamp,
@@ -1024,7 +1023,6 @@ project(':forge') {
         doFirst {
             def libs = libraries
             json = [
-                _comment_: launcherJson.comment,
                 spec: 1,
                 profile: project.name,
                 version: launcherJson.id,

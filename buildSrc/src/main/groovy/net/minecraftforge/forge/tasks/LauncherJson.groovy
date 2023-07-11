@@ -20,11 +20,6 @@ abstract class LauncherJson extends DefaultTask {
     
     @Internal final vanilla = project.project(':mcp').file('build/mcp/downloadJson/version.json')
     @Internal final timestamp = iso8601Now()
-    @Internal final comment = [
-        "Please do not automate the download and installation of Forge.",
-        "Our efforts are supported by ads from the download page.",
-        "If you MUST automate this, please consider supporting the project through https://www.patreon.com/LexManos/"
-    ]
     @Internal final id = "${project.rootProject.ext.MC_VERSION}-${project.name}${project.version.substring(project.rootProject.ext.MC_VERSION.length())}"
 
     LauncherJson() {

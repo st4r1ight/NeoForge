@@ -67,6 +67,21 @@ abstract class InstallerJson extends DefaultTask {
                 ]
             ])
         }
+
+        def path = Util.getMavenPath(project.tasks.universalJar)
+        def dep = Util.getMavenDep(project.tasks.universalJar)
+        libs.put(dep.toString(), [
+                name: dep,
+                downloads: [
+                        artifact: [
+                                path: path,
+                                url: "https://maven.neoforged.net/releases/${path}",
+                                sha1: project.tasks.universalJar.archiveFile.get().asFile.sha1(),
+                                size: project.tasks.universalJar.archiveFile.get().asFile.length()
+                        ]
+                ]
+        ])
+
         json.libraries = libs.values().sort{a,b -> a.name.compareTo(b.name)}
         json.icon = "data:image/png;base64," + new String(Base64.getEncoder().encode(Files.readAllBytes(icon.get().asFile.toPath())))
         json.json = launcherJsonName.get()

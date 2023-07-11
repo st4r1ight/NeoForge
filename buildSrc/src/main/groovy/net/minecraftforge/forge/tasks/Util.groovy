@@ -3,6 +3,7 @@ package net.minecraftforge.forge.tasks
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.objectweb.asm.ClassReader
@@ -100,7 +101,18 @@ public class Util {
 		return ret
 	}
 
-    public static def getMavenPath(Project project, String notation) {
+	public static String getMavenPath(Task task) {
+		def classifier = task.archiveClassifier.get()
+		def dep = "${task.project.group}:${task.project.name}:${task.project.version}" + (classifier == '' ? '' : ':' + classifier)
+		return "${task.project.group.replace('.', '/')}/${task.project.name}/${task.project.version}/${task.project.name}-${task.project.version}".toString() + (classifier == '' ? '' : '-' + classifier) + '.jar'
+	}
+
+	public static String getMavenDep(Task task) {
+		def classifier = task.archiveClassifier.get()
+		return "${task.project.group}:${task.project.name}:${task.project.version}" + (classifier == '' ? '' : ':' + classifier)
+	}
+
+    public static String getMavenPath(Project project, String notation) {
 		def config = createConfiguration(project, notation);
 		def resolvedConfig = config.resolvedConfiguration
 		if (resolvedConfig.hasError()) {
@@ -123,7 +135,7 @@ public class Util {
 		return "${artifact.moduleVersion.id.group.replace('.', '/')}/${artifact.moduleVersion.id.name}/${artifact.moduleVersion.id.version}/${artifact.moduleVersion.id.name}-${artifact.moduleVersion.id.version}".toString() + (artifact.classifier == '' || artifact.classifier == null ? '' : '-' + artifact.classifier).toString() + '.' + artifact.extension
     }
 
-    public static def getMavenDep(Project project, String notation) {
+    public static String getMavenDep(Project project, String notation) {
 		def config = createConfiguration(project, notation);
 		def resolvedConfig = config.resolvedConfiguration
 		if (resolvedConfig.hasError()) {
@@ -146,7 +158,7 @@ public class Util {
 		return "${dependency.moduleGroup}:${dependency.moduleName}:${dependency.moduleVersion}".toString() + (artifact.classifier == null || artifact.classifier == "" ? "" : ":${artifact.classifier}").toString() + (artifact.extension == null || artifact.extension == "jar" ? "" : "@${artifact.extension}").toString()
     }
 
-	public static def getMavenFile(Project project, String notation) {
+	public static File getMavenFile(Project project, String notation) {
 		def config = createConfiguration(project, notation);
 		def resolvedConfig = config.resolvedConfiguration
 		if (resolvedConfig.hasError()) {
