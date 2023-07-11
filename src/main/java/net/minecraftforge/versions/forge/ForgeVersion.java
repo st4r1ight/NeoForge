@@ -31,9 +31,9 @@ public class ForgeVersion
         if (vers == null) throw new RuntimeException("Missing forge version, cannot continue");
         String spec = JarVersionLookupHandler.getSpecificationVersion(ForgeVersion.class).orElse(System.getenv("FORGE_SPEC"));
         if (spec == null) throw new RuntimeException("Missing forge spec, cannot continue");
-        String group = JarVersionLookupHandler.getImplementationTitle(ForgeVersion.class).orElse(FMLLoader.versionInfo().forgeGroup());
+        String group = JarVersionLookupHandler.getImplementationTitle(ForgeVersion.class).orElse("net.neoforged");
         if (group == null) {
-            group = "net.minecraftforge"; // If all else fails, Our normal group
+            group = "net.neoforged"; // If all else fails, Our normal group
         }
         forgeVersion = vers;
         forgeSpec = spec;

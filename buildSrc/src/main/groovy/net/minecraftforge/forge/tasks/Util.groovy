@@ -103,7 +103,7 @@ public class Util {
     public static def getMavenPath(Project project, String notation) {
 		def config = createConfiguration(project, notation);
 		def resolvedConfig = config.resolvedConfiguration
-		if (resolvedConfig.hasErrorProblems()) {
+		if (resolvedConfig.hasError()) {
 			resolvedConfig.rethrowFailure()
 		}
 
@@ -113,20 +113,20 @@ public class Util {
 		}
 
 		def dependency = firstLevelModuleDependencies.iterator().next()
-		def artifacts = dependency.allModuleArtifacts
+		def artifacts = dependency.moduleArtifacts
 		if (artifacts.size() != 1) {
 			throw new RuntimeException("Expected 1 artifact, got ${artifacts.size()}")
 		}
 
 		def artifact = artifacts.iterator().next()
 
-		return "${artifact.moduleVersion.id.group.replace('.', '/')}/${artifact.moduleVersion.id.name}/${artifact.moduleVersion.id.version}/${artifact.moduleVersion.id.name}-${artifact.moduleVersion.id.version}".toString() + (artifact.classifier == '' ? '' : '-' + artifact.classifier) + '.' + artifact.extension
+		return "${artifact.moduleVersion.id.group.replace('.', '/')}/${artifact.moduleVersion.id.name}/${artifact.moduleVersion.id.version}/${artifact.moduleVersion.id.name}-${artifact.moduleVersion.id.version}".toString() + (artifact.classifier == '' || artifact.classifier == null ? '' : '-' + artifact.classifier).toString() + '.' + artifact.extension
     }
 
     public static def getMavenDep(Project project, String notation) {
 		def config = createConfiguration(project, notation);
 		def resolvedConfig = config.resolvedConfiguration
-		if (resolvedConfig.hasErrorProblems()) {
+		if (resolvedConfig.hasError()) {
 			resolvedConfig.rethrowFailure()
 		}
 
@@ -136,20 +136,20 @@ public class Util {
 		}
 
 		def dependency = firstLevelModuleDependencies.iterator().next()
-		def artifacts = dependency.allModuleArtifacts
+		def artifacts = dependency.moduleArtifacts
 		if (artifacts.size() != 1) {
 			throw new RuntimeException("Expected 1 artifact, got ${artifacts.size()}")
 		}
 
 		def artifact = artifacts.iterator().next()
 
-		return "${dependency.moduleGroup}:${dependency.moduleName}:${dependency.moduleVersion}:${artifact.classifier}@${artifact.extension}"
+		return "${dependency.moduleGroup}:${dependency.moduleName}:${dependency.moduleVersion}".toString() + (artifact.classifier == null || artifact.classifier == "" ? "" : ":${artifact.classifier}").toString() + (artifact.extension == null || artifact.extension == "jar" ? "" : "@${artifact.extension}").toString()
     }
 
 	public static def getMavenFile(Project project, String notation) {
 		def config = createConfiguration(project, notation);
 		def resolvedConfig = config.resolvedConfiguration
-		if (resolvedConfig.hasErrorProblems()) {
+		if (resolvedConfig.hasError()) {
 			resolvedConfig.rethrowFailure()
 		}
 
@@ -159,7 +159,7 @@ public class Util {
 		}
 
 		def dependency = firstLevelModuleDependencies.iterator().next()
-		def artifacts = dependency.allModuleArtifacts
+		def artifacts = dependency.moduleArtifacts
 		if (artifacts.size() != 1) {
 			throw new RuntimeException("Expected 1 artifact, got ${artifacts.size()}")
 		}
