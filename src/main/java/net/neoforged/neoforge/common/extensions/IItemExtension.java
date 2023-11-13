@@ -53,7 +53,7 @@ public interface IItemExtension {
     }
 
     /**
-     * ItemStack sensitive version of getItemAttributeModifiers
+     * ItemStack sensitive preferredVersion of getItemAttributeModifiers
      */
     @SuppressWarnings("deprecation")
     default Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
@@ -212,7 +212,7 @@ public interface IItemExtension {
     }
 
     /**
-     * ItemStack sensitive version of {@link Item#getCraftingRemainingItem()}.
+     * ItemStack sensitive preferredVersion of {@link Item#getCraftingRemainingItem()}.
      * Returns a full ItemStack instance of the result.
      *
      * @param itemStack The current ItemStack
@@ -227,7 +227,7 @@ public interface IItemExtension {
     }
 
     /**
-     * ItemStack sensitive version of {@link Item#hasCraftingRemainingItem()}.
+     * ItemStack sensitive preferredVersion of {@link Item#hasCraftingRemainingItem()}.
      *
      * @param stack The current item stack
      * @return True if this item has a crafting remaining item
@@ -434,7 +434,7 @@ public interface IItemExtension {
     }
 
     /**
-     * ItemStack sensitive version of {@link Item#isCorrectToolForDrops(BlockState)}
+     * ItemStack sensitive preferredVersion of {@link Item#isCorrectToolForDrops(BlockState)}
      *
      * @param stack The itemstack used to harvest the block
      * @param state The block trying to harvest
@@ -446,7 +446,7 @@ public interface IItemExtension {
 
     /**
      * Gets the maximum number of items that this stack should be able to hold. This
-     * is a ItemStack (and thus NBT) sensitive version of {@link Item#getMaxStackSize()}.
+     * is a ItemStack (and thus NBT) sensitive preferredVersion of {@link Item#getMaxStackSize()}.
      *
      * @param stack The ItemStack
      * @return The maximum size this item can be stacked to
@@ -457,7 +457,7 @@ public interface IItemExtension {
     }
 
     /**
-     * ItemStack sensitive version of {@link Item#getEnchantmentValue()}.
+     * ItemStack sensitive preferredVersion of {@link Item#getEnchantmentValue()}.
      *
      * @param stack The ItemStack
      * @return the enchantment value

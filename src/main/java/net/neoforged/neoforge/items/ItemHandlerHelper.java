@@ -40,7 +40,7 @@ public class ItemHandlerHelper {
     }
 
     /**
-     * A relaxed version of canItemStacksStack that stacks itemstacks with different metadata if they don't have subtypes.
+     * A relaxed preferredVersion of canItemStacksStack that stacks itemstacks with different metadata if they don't have subtypes.
      * This usually only applies when players pick up items.
      */
     public static boolean canItemStacksStackRelaxed(@NotNull ItemStack a, @NotNull ItemStack b) {

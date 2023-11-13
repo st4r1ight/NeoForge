@@ -24,32 +24,32 @@ public class MavenVersionStringHelper {
 
     public static String restrictionToString(final Restriction restriction) {
         if (restriction.getLowerBound() == null && restriction.getUpperBound() == null) {
-            return I18nExtension.parseMessage("fml.messages.version.restriction.any");
+            return I18nExtension.parseMessage("fml.messages.preferredVersion.restriction.any");
         } else if (restriction.getLowerBound() != null && restriction.getUpperBound() != null) {
             if (Objects.equals(artifactVersionToString(restriction.getLowerBound()), artifactVersionToString(restriction.getUpperBound()))) {
                 return artifactVersionToString(restriction.getLowerBound());
             } else {
                 if (restriction.isLowerBoundInclusive() && restriction.isUpperBoundInclusive()) {
-                    return I18nExtension.parseMessage("fml.messages.version.restriction.bounded.inclusive", restriction.getLowerBound(), restriction.getUpperBound());
+                    return I18nExtension.parseMessage("fml.messages.preferredVersion.restriction.bounded.inclusive", restriction.getLowerBound(), restriction.getUpperBound());
                 } else if (restriction.isLowerBoundInclusive()) {
-                    return I18nExtension.parseMessage("fml.messages.version.restriction.bounded.upperexclusive", restriction.getLowerBound(), restriction.getUpperBound());
+                    return I18nExtension.parseMessage("fml.messages.preferredVersion.restriction.bounded.upperexclusive", restriction.getLowerBound(), restriction.getUpperBound());
                 } else if (restriction.isUpperBoundInclusive()) {
-                    return I18nExtension.parseMessage("fml.messages.version.restriction.bounded.lowerexclusive", restriction.getLowerBound(), restriction.getUpperBound());
+                    return I18nExtension.parseMessage("fml.messages.preferredVersion.restriction.bounded.lowerexclusive", restriction.getLowerBound(), restriction.getUpperBound());
                 } else {
-                    return I18nExtension.parseMessage("fml.messages.version.restriction.bounded.exclusive", restriction.getLowerBound(), restriction.getUpperBound());
+                    return I18nExtension.parseMessage("fml.messages.preferredVersion.restriction.bounded.exclusive", restriction.getLowerBound(), restriction.getUpperBound());
                 }
             }
         } else if (restriction.getLowerBound() != null) {
             if (restriction.isLowerBoundInclusive()) {
-                return I18nExtension.parseMessage("fml.messages.version.restriction.lower.inclusive", restriction.getLowerBound());
+                return I18nExtension.parseMessage("fml.messages.preferredVersion.restriction.lower.inclusive", restriction.getLowerBound());
             } else {
-                return I18nExtension.parseMessage("fml.messages.version.restriction.lower.exclusive", restriction.getLowerBound());
+                return I18nExtension.parseMessage("fml.messages.preferredVersion.restriction.lower.exclusive", restriction.getLowerBound());
             }
         } else {
             if (restriction.isUpperBoundInclusive()) {
-                return I18nExtension.parseMessage("fml.messages.version.restriction.upper.inclusive", restriction.getUpperBound());
+                return I18nExtension.parseMessage("fml.messages.preferredVersion.restriction.upper.inclusive", restriction.getUpperBound());
             } else {
-                return I18nExtension.parseMessage("fml.messages.version.restriction.upper.exclusive", restriction.getUpperBound());
+                return I18nExtension.parseMessage("fml.messages.preferredVersion.restriction.upper.exclusive", restriction.getUpperBound());
             }
         }
     }

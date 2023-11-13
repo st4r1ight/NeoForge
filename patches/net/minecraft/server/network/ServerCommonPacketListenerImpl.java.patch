@@ -1,14 +1,81 @@
 --- a/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
-@@ -68,6 +_,11 @@
- 
+@@ -12,13 +12,8 @@
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.network.protocol.Packet;
+ import net.minecraft.network.protocol.PacketUtils;
+-import net.minecraft.network.protocol.common.ClientboundDisconnectPacket;
+-import net.minecraft.network.protocol.common.ClientboundKeepAlivePacket;
+-import net.minecraft.network.protocol.common.ServerCommonPacketListener;
+-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
+-import net.minecraft.network.protocol.common.ServerboundKeepAlivePacket;
+-import net.minecraft.network.protocol.common.ServerboundPongPacket;
+-import net.minecraft.network.protocol.common.ServerboundResourcePackPacket;
++import net.minecraft.network.protocol.common.*;
++import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.ClientInformation;
+ import net.minecraft.util.VisibleForDebug;
+@@ -65,7 +60,7 @@
+    @Override
+    public void handlePong(ServerboundPongPacket p_295142_) {
+    }
+-
++   
     @Override
     public void handleCustomPayload(ServerboundCustomPayloadPacket p_294276_) {
-+      if (p_294276_.payload() instanceof net.neoforged.neoforge.network.custom.payload.SimplePayload simplePayload && net.neoforged.neoforge.network.NetworkHooks.onCustomPayload(p_294276_, simplePayload, connection)) {
+    }
+@@ -108,8 +103,17 @@
+    public void send(Packet<?> p_294278_) {
+       this.send(p_294278_, null);
+    }
+-
++   
++   @Override
++   public void send(CustomPacketPayload packetPayload) {
++      this.send(new ClientboundCustomPayloadPacket(packetPayload));
++   }
++   
+    public void send(Packet<?> p_295099_, @Nullable PacketSendListener p_296321_) {
++      if (!net.neoforged.neoforge.network.registration.NetworkRegistry.getInstance().canSendPacket(p_295099_, this)) {
 +         return;
 +      }
 +      
-+      LOGGER.warn("Unknown custom packet payload: {}", p_294276_.payload().id());
+       boolean flag = !this.suspendFlushingOnServerThread || !this.server.isSameThread();
+ 
+       try {
+@@ -121,7 +125,13 @@
+          throw new ReportedException(crashreport);
+       }
+    }
+-
++   
++   @Override
++   public void send(CustomPacketPayload packetPayload, @Nullable PacketSendListener listener) {
++      this.send(new ClientboundCustomPayloadPacket(packetPayload), listener);
++   }
++   
++   @Override
+    public void disconnect(Component p_294116_) {
+       this.connection.send(new ClientboundDisconnectPacket(p_294116_), PacketSendListener.thenRun(() -> this.connection.disconnect(p_294116_)));
+       this.connection.setReadOnly();
+@@ -143,7 +153,17 @@
+       return this.latency;
     }
  
-    @Override
+-   protected CommonListenerCookie createCookie(ClientInformation p_301973_) {
+-      return new CommonListenerCookie(this.playerProfile(), this.latency, p_301973_);
++   protected CommonListenerCookie createCookie(ClientInformation p_301973_, boolean isModdedConnection) {
++      return new CommonListenerCookie(this.playerProfile(), this.latency, p_301973_, isModdedConnection);
++   }
++   
++   @Override
++   public Connection getConnection() {
++      return connection;
++   }
++   
++   @Override
++   public MinecraftServer getServer() {
++      return server;
+    }
+ }

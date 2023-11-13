@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import net.neoforged.fml.Logging;
 import net.neoforged.fml.config.IConfigSpec;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.util.Range;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -743,78 +744,7 @@ public class ModConfigSpec extends UnmodifiableConfigWrapper<UnmodifiableConfig>
                 throw new IllegalStateException(message);
         }
     }
-
-    @SuppressWarnings("unused")
-    private static class Range<V extends Comparable<? super V>> implements Predicate<Object> {
-        private final Class<? extends V> clazz;
-        private final V min;
-        private final V max;
-
-        private Range(Class<V> clazz, V min, V max) {
-            this.clazz = clazz;
-            this.min = min;
-            this.max = max;
-        }
-
-        public Class<? extends V> getClazz() {
-            return clazz;
-        }
-
-        public V getMin() {
-            return min;
-        }
-
-        public V getMax() {
-            return max;
-        }
-
-        private boolean isNumber(Object other) {
-            return Number.class.isAssignableFrom(clazz) && other instanceof Number;
-        }
-
-        @Override
-        public boolean test(Object t) {
-            if (isNumber(t)) {
-                Number n = (Number) t;
-                boolean result = ((Number) min).doubleValue() <= n.doubleValue() && n.doubleValue() <= ((Number) max).doubleValue();
-                if (!result) {
-                    LOGGER.debug(Logging.CORE, "Range value {} is not within its bounds {}-{}", n.doubleValue(), ((Number) min).doubleValue(), ((Number) max).doubleValue());
-                }
-                return result;
-            }
-            if (!clazz.isInstance(t)) return false;
-            V c = clazz.cast(t);
-
-            boolean result = c.compareTo(min) >= 0 && c.compareTo(max) <= 0;
-            if (!result) {
-                LOGGER.debug(Logging.CORE, "Range value {} is not within its bounds {}-{}", c, min, max);
-            }
-            return result;
-        }
-
-        public Object correct(Object value, Object def) {
-            if (isNumber(value)) {
-                Number n = (Number) value;
-                return n.doubleValue() < ((Number) min).doubleValue() ? min : n.doubleValue() > ((Number) max).doubleValue() ? max : value;
-            }
-            if (!clazz.isInstance(value)) return def;
-            V c = clazz.cast(value);
-            return c.compareTo(min) < 0 ? min : c.compareTo(max) > 0 ? max : value;
-        }
-
-        @Override
-        public String toString() {
-            if (clazz == Integer.class) {
-                if (max.equals(Integer.MAX_VALUE)) {
-                    return "> " + min;
-                } else if (min.equals(Integer.MIN_VALUE)) {
-                    return "< " + max;
-                }
-            } // TODO add more special cases?
-            return min + " ~ " + max;
-        }
-    }
-
+    
     public static class ValueSpec {
         private final String comment;
         private final String langKey;

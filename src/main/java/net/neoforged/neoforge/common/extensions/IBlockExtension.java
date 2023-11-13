@@ -258,7 +258,7 @@ public interface IBlockExtension {
     }
 
     /**
-     * Location sensitive version of getExplosionResistance
+     * Location sensitive preferredVersion of getExplosionResistance
      *
      * @param level     The current level
      * @param pos       Block position in level
@@ -463,7 +463,7 @@ public interface IBlockExtension {
     }
 
     /**
-     * Sensitive version of getSoundType
+     * Sensitive preferredVersion of getSoundType
      * 
      * @param state  The state
      * @param level  The level

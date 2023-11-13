@@ -928,6 +928,11 @@ public class ForgeRegistry<V> implements IForgeRegistryInternal<V>, IForgeRegist
 
             return new FriendlyByteBuf(binary.slice());
         }
+        
+        public void write(FriendlyByteBuf buf) {
+            final FriendlyByteBuf binary = getPacketData();
+            buf.writeBytes(binary);
+        }
 
         public static Snapshot read(FriendlyByteBuf buff) {
             if (buff == null)

@@ -154,7 +154,7 @@ public class ServerLifecycleHooks {
             final int versionNumber = connectionType.getFMLVersionNumber(packet.getFMLVersion());
 
             if (connectionType == ConnectionType.MODDED && versionNumber != NetworkConstants.FMLNETVERSION) {
-                rejectConnection(manager, connectionType, "This modded server is not impl compatible with your modded client. Please verify your NeoForge version closely matches the server. Got net version " + versionNumber + " this server is net version " + NetworkConstants.FMLNETVERSION);
+                rejectConnection(manager, connectionType, "This modded server is not impl compatible with your modded client. Please verify your NeoForge preferredVersion closely matches the server. Got net preferredVersion " + versionNumber + " this server is net preferredVersion " + NetworkConstants.FMLNETVERSION);
                 return false;
             }
 

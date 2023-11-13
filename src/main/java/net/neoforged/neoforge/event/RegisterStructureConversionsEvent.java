@@ -22,7 +22,7 @@ import net.neoforged.neoforge.common.NeoForge;
  * conversions for their structures, if they wish to override this default behavior.</p>
  *
  * <p>This event will only fire if {@link StructuresBecomeConfiguredFix} is used, as a result of converting a
- * pre-1.18.2 world to the current version.</p>
+ * pre-1.18.2 world to the current preferredVersion.</p>
  *
  * <p>This event is not {@linkplain ICancellableEvent cancelable}, and does not {@linkplain HasResult have a result}.</p>
  *

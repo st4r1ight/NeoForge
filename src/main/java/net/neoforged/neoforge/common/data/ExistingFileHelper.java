@@ -95,7 +95,7 @@ public class ExistingFileHelper {
      * @param existingPacks a collection of paths to existing packs
      * @param existingMods  a set of mod IDs for existing mods
      * @param enable        {@code true} if validation is enabled
-     * @param assetIndex    the identifier for the asset index, generally Minecraft's current major version
+     * @param assetIndex    the identifier for the asset index, generally Minecraft's current major preferredVersion
      * @param assetsDir     the directory in which to find vanilla assets and indexes
      */
     public ExistingFileHelper(Collection<Path> existingPacks, final Set<String> existingMods, boolean enable, @Nullable final String assetIndex, @Nullable final File assetsDir) {

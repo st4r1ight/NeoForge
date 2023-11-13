@@ -10,22 +10,18 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.serialization.Lifecycle;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import net.minecraft.core.Registry;
 import net.minecraft.core.WritableRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.fml.ModLoader;
-import net.neoforged.neoforge.network.HandshakeMessages;
-import net.neoforged.neoforge.network.simple.MessageFunctions;
+import net.neoforged.neoforge.network.payload.FrozenRegistryPayload;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class RegistryManager {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -167,8 +163,10 @@ public class RegistryManager {
         this.registries.clear();
     }
 
-    public static List<MessageFunctions.LoginPacket<HandshakeMessages.S2CRegistry>> generateRegistryPackets(boolean isLocal) {
-        return !isLocal ? ACTIVE.takeSnapshot(false).entrySet().stream().map(e -> new MessageFunctions.LoginPacket<>("Registry " + e.getKey(), new HandshakeMessages.S2CRegistry(e.getKey(), e.getValue()))).toList() : Collections.emptyList();
+    public static List<FrozenRegistryPayload> generateRegistryPackets(boolean isLocal) {
+        return !isLocal ?
+                       ACTIVE.takeSnapshot(false).entrySet().stream().map(e -> new FrozenRegistryPayload(e.getKey(), e.getValue())).toList()
+                       : Collections.emptyList();
     }
 
     public static List<ResourceLocation> getRegistryNamesForSyncToClient() {

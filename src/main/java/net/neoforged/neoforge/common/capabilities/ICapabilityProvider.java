@@ -26,8 +26,8 @@ public interface ICapabilityProvider {
     <T> LazyOptional<T> getCapability(@NotNull final Capability<T> cap, final @Nullable Direction side);
 
     /*
-     * Purely added as a bouncer to sided version, to make modders stop complaining about calling with a null value.
-     * This should never be OVERRIDDEN, modders should only ever implement the sided version.
+     * Purely added as a bouncer to sided preferredVersion, to make modders stop complaining about calling with a null value.
+     * This should never be OVERRIDDEN, modders should only ever implement the sided preferredVersion.
      */
     @NotNull
     default <T> LazyOptional<T> getCapability(@NotNull final Capability<T> cap) {

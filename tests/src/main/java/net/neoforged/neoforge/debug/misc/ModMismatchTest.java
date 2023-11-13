@@ -19,11 +19,11 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.ForgeRegistries;
 
 /**
- * This test mod provides a way to register a {@link SimpleChannel} with a different protocol version on the client and the server to cause a mod channel mismatch.
+ * This test mod provides a way to register a {@link SimpleChannel} with a different protocol preferredVersion on the client and the server to cause a mod channel mismatch.
  * Additionally, this test mod can register a registry object for the dedicated server only, causing a registry mismatch. Registering a registry object for the client only is not supported, since that would not cause a registry mismatch.
  * With this test mod and at least one of its features enabled, a {@link ModMismatchDisconnectedScreen} should appear when trying to join a test server,
  * displaying detailed information about why the handshake failed.
- * In case of a mismatch, the two displayed mod versions will be the same due to not being able to specify a different client and server mod version of this test mod.
+ * In case of a mismatch, the two displayed mod versions will be the same due to not being able to specify a different client and server mod preferredVersion of this test mod.
  * This test mod is disabled by default to ensure that users can join test servers without needing to specifically disable this test mod.
  */
 @Mod(ModMismatchTest.MOD_ID)

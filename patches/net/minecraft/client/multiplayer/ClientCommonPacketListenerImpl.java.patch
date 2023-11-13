@@ -1,6 +1,14 @@
 --- a/net/minecraft/client/multiplayer/ClientCommonPacketListenerImpl.java
 +++ b/net/minecraft/client/multiplayer/ClientCommonPacketListenerImpl.java
-@@ -97,12 +_,12 @@
+@@ -49,6 +49,7 @@
+ import net.minecraft.resources.ResourceKey;
+ import net.minecraft.tags.TagKey;
+ import net.minecraft.tags.TagNetworkSerialization;
++import net.minecraft.util.thread.ReentrantBlockableEventLoop;
+ import net.neoforged.api.distmarker.Dist;
+ import net.neoforged.api.distmarker.OnlyIn;
+ import org.slf4j.Logger;
+@@ -97,12 +98,12 @@
              this.serverBrand = brandpayload.brand();
              this.telemetryManager.onServerBrandReceived(brandpayload.brand());
           } else {
@@ -15,3 +23,30 @@
  
     protected abstract RegistryAccess.Frozen registryAccess();
  
+@@ -231,6 +232,10 @@
+    }
+ 
+    public void send(Packet<?> p_295097_) {
++      if (!net.neoforged.neoforge.network.registration.NetworkRegistry.getInstance().canSendPacket(p_295097_, this)) {
++         return;
++      }
++      
+       this.connection.send(p_295097_);
+    }
+ 
+@@ -263,5 +268,15 @@
+ 
+    @OnlyIn(Dist.CLIENT)
+    static record DeferredPacket(Packet<? extends ServerboundPacketListener> packet, BooleanSupplier sendCondition, long expirationTime) {
++   }
++   
++   @Override
++   public Connection getConnection() {
++      return connection;
++   }
++   
++   @Override
++   public ReentrantBlockableEventLoop<?> getMainThreadEventLoop() {
++      return minecraft;
+    }
+ }

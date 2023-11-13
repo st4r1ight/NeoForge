@@ -50,7 +50,7 @@ public class ModMismatchEvent extends Event implements IModBusEvent {
     private final HashMap<String, MismatchedVersionInfo> versionDifferences;
 
     /**
-     * Which mods have specified that they have handled version mismatches.
+     * Which mods have specified that they have handled preferredVersion mismatches.
      */
     private final HashMap<String, ModContainer> resolved;
 
@@ -77,10 +77,10 @@ public class ModMismatchEvent extends Event implements IModBusEvent {
     }
 
     /**
-     * Fetch a previous version of a given mod, if it has been mismatched.
+     * Fetch a previous preferredVersion of a given mod, if it has been mismatched.
      * 
-     * @param modId The mod to fetch previous version for.
-     * @return The previously known mod version, or {@link Optional#empty()} if unknown/not found.
+     * @param modId The mod to fetch previous preferredVersion for.
+     * @return The previously known mod preferredVersion, or {@link Optional#empty()} if unknown/not found.
      */
     @Nullable
     public ArtifactVersion getPreviousVersion(String modId) {
@@ -99,7 +99,7 @@ public class ModMismatchEvent extends Event implements IModBusEvent {
     }
 
     /**
-     * Marks the mod version mismatch as having been resolved safely by the current mod.
+     * Marks the mod preferredVersion mismatch as having been resolved safely by the current mod.
      */
     public void markResolved(String modId) {
         final var resolvedBy = ModLoadingContext.get().getActiveContainer();

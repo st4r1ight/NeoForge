@@ -723,7 +723,7 @@ public class DataGeneratorTest {
 
         private static final Set<Block> IGNORED_BLOCKS = ImmutableSet.of(Blocks.BIRCH_FENCE_GATE, Blocks.STONE);
         // Vanilla doesn't generate these models yet, so they have minor discrepancies that are hard to test
-        // This list should probably be cleared and investigated after each major version update
+        // This list should probably be cleared and investigated after each major preferredVersion update
         private static final Set<ResourceLocation> IGNORED_MODELS = ImmutableSet.of(new ResourceLocation(MODID, "block/cube"));
         private static final Set<ResourceLocation> CUSTOM_MODELS = ImmutableSet.of(new ResourceLocation(MODID, "block/test_block"));
 

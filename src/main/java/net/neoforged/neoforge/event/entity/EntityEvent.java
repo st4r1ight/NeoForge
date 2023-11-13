@@ -72,7 +72,7 @@ public abstract class EntityEvent extends Event {
         }
 
         /**
-         * A packed version of the old section's position. This is to be used with the various methods in {@link SectionPos},
+         * A packed preferredVersion of the old section's position. This is to be used with the various methods in {@link SectionPos},
          * such as {@link SectionPos#of(long)} or {@link SectionPos#x(long)} to avoid allocation.
          * 
          * @return the packed position of the old section
@@ -82,7 +82,7 @@ public abstract class EntityEvent extends Event {
         }
 
         /**
-         * A packed version of the new section's position. This is to be used with the various methods in {@link SectionPos},
+         * A packed preferredVersion of the new section's position. This is to be used with the various methods in {@link SectionPos},
          * such as {@link SectionPos#of(long)} or {@link SectionPos#x(long)} to avoid allocation.
          * 
          * @return the packed position of the new section

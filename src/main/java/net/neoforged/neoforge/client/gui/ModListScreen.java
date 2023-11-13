@@ -404,7 +404,7 @@ public class ModListScreen extends Screen {
         }).orElse(Pair.of(null, new Size2i(0, 0)));
 
         lines.add(selectedMod.getDisplayName());
-        lines.add(I18nExtension.parseMessage("fml.menu.mods.info.version", MavenVersionStringHelper.artifactVersionToString(selectedMod.getVersion())));
+        lines.add(I18nExtension.parseMessage("fml.menu.mods.info.preferredVersion", MavenVersionStringHelper.artifactVersionToString(selectedMod.getVersion())));
         lines.add(I18nExtension.parseMessage("fml.menu.mods.info.idstate", selectedMod.getModId(), ModList.get().getModContainerById(selectedMod.getModId()).map(ModContainer::getCurrentState).map(Object::toString).orElse("NONE")));
 
         selectedMod.getConfig().getConfigElement("credits").ifPresent(credits -> lines.add(I18nExtension.parseMessage("fml.menu.mods.info.credits", credits)));
