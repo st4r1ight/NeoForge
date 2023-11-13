@@ -29,6 +29,7 @@ public class NetworkComponentNegotiator {
      *         <li>If the server has none optional components that are not present on the client, then negotiation fails</li>
      *         <li>For each of the matching channels the following is executed:</li>
      *         <ul>
+     *             <li>Check if packet flow directions are set, and if at least one is set match it to the other, by missing or wrong value fail the negotiation.</li>
      *             <li>If one side has no version range provided, but has a preferred version, then it is checked against the other sides range. If the check fails then it fail.</li>
      *             <li>If one side has a range, but the other has no version, then negotiation fails.</li>
      *             <li>If one side has a preferred version, but no range, then the preferred version is interpreted as the sole acceptable range.</li>
@@ -152,6 +153,7 @@ public class NetworkComponentNegotiator {
      * <p>
      * The following rules are followed:
      *         <ul>
+     *             <li>Check if packet flow directions are set, and if at least one is set match it to the other, by missing or wrong value fail the negotiation.</li>
      *             <li>If one side has no version range provided, but has a preferred version, then it is checked against the other sides range.</li>
      *             <li>If one side has a range, but the other has no version, then negotiation fails.</li>
      *             <li>If one side has a preferred version, but no range, then the preferred version is interpreted as the sole acceptable range.</li>
@@ -173,6 +175,14 @@ public class NetworkComponentNegotiator {
      */
     @VisibleForTesting
     public static Optional<ComponentNegotiationResult> validateComponent(NegotiableNetworkComponent left, NegotiableNetworkComponent right, String requestingSide) {
+        if (left.flow().isPresent()) {
+            if (right.flow().isEmpty()) {
+                return Optional.of(new ComponentNegotiationResult(false, Component.translatable("neoforge.network.negotiation.failure.flow.%s.missing".formatted(requestingSide), left.id())));
+            } else if (left.flow().get() != right.flow().get()) {
+                return Optional.of(new ComponentNegotiationResult(false, Component.translatable("neoforge.network.negotiation.failure.flow.%s.mismatch".formatted(requestingSide), left.id(), left.flow().get(), right.flow().get())));
+            }
+        }
+        
         Optional<Range<Integer>> leftRange = left.buildVersionRange();
         Optional<Range<Integer>> rightRange = right.buildVersionRange();
         
