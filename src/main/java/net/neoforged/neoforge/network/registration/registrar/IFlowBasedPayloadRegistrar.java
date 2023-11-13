@@ -14,4 +14,15 @@ public interface IFlowBasedPayloadRegistrar extends IPayloadRegistrar {
      * @return A registrar that is bound to the given flow.
      */
     IPayloadRegistrarWithAcceptableRange flowing(PacketFlow flow);
+    
+    /**
+     * Enables payloads registered with this registrar to flow in both directions.
+     * <p>
+     *     This is the default value for all registrars, unless {@link #flowing(PacketFlow)} has been called.
+     *     Invoking this method as such is only needed to reset the ability to flow in both directions.
+     * </p>
+     *
+     * @return A registrar that is bound to both directions.
+     */
+    IPayloadRegistrarWithAcceptableRange bidirectional();
 }

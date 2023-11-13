@@ -169,8 +169,8 @@ public class RegistryManager {
                        : Collections.emptyList();
     }
 
-    public static List<ResourceLocation> getRegistryNamesForSyncToClient() {
-        return ACTIVE.registries.keySet().stream().filter(resloc -> ACTIVE.synced.contains(resloc)).collect(Collectors.toList());
+    public static Set<ResourceLocation> getRegistryNamesForSyncToClient() {
+        return ACTIVE.registries.keySet().stream().filter(resloc -> ACTIVE.synced.contains(resloc)).collect(Collectors.toSet());
     }
 
     public static Set<ResourceLocation> getVanillaRegistryKeys() {

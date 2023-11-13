@@ -9,12 +9,8 @@ public record SplitPacketPayload(byte[] payload) implements CustomPacketPayload 
     
     public static final ResourceLocation ID = new ResourceLocation("neoforge", "split");
     
-    public SplitPacketPayload(FriendlyByteBuf buf) {
-        this(buf.readBytes(buf.readVarInt()).array());
-    }
-    
     public SplitPacketPayload(FriendlyByteBuf buf, PayloadReadingContext context) {
-        this(buf);
+        this(buf.readBytes(buf.readVarInt()).array());
     }
     
     @Override

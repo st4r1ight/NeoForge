@@ -8,12 +8,19 @@ package net.neoforged.neoforge.network;
 import java.util.Arrays;
 import java.util.List;
 
+import net.minecraft.network.protocol.PacketFlow;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion;
 import net.neoforged.neoforge.network.event.EventNetworkChannel;
 import net.neoforged.neoforge.network.event.RegisterPacketHandlerEvent;
+import net.neoforged.neoforge.network.handlers.ClientForgeRegistryHandler;
+import net.neoforged.neoforge.network.handlers.ServerForgeRegistryHandler;
+import net.neoforged.neoforge.network.handling.ConfigurationPayloadContext;
+import net.neoforged.neoforge.network.handling.IConfigurationPayloadHandler;
 import net.neoforged.neoforge.network.payload.FrozenRegistryPayload;
+import net.neoforged.neoforge.network.payload.FrozenRegistrySyncCompletePayload;
+import net.neoforged.neoforge.network.payload.FrozenRegistrySyncStartPayload;
 import net.neoforged.neoforge.network.simple.SimpleChannel;
 import net.neoforged.neoforge.registries.RegistryManager;
 import org.jetbrains.annotations.ApiStatus;
@@ -26,12 +33,27 @@ public class NetworkInitialization {
     public static void register(final RegisterPacketHandlerEvent event) {
         event.registrar()
                 .withVersion(buildNetworkVersion())
+                .flowing(PacketFlow.CLIENTBOUND)
+                .configuration(
+                        FrozenRegistrySyncStartPayload.ID,
+                        FrozenRegistrySyncStartPayload.class,
+                        FrozenRegistrySyncStartPayload::new,
+                        handlers -> handlers.client(ClientForgeRegistryHandler.getInstance()::handle)
+                )
                 .configuration(
                         FrozenRegistryPayload.ID,
                         FrozenRegistryPayload.class,
                         FrozenRegistryPayload::new,
-                        
+                        handlers -> handlers.client(ClientForgeRegistryHandler.getInstance()::handle)
                 )
+                .bidirectional()
+                .configuration(
+                        FrozenRegistrySyncCompletePayload.ID,
+                        FrozenRegistrySyncCompletePayload.class,
+                        FrozenRegistrySyncCompletePayload::new,
+                        handlers -> handlers.client(ClientForgeRegistryHandler.getInstance()::handle)
+                                            .server(ServerForgeRegistryHandler.getInstance()::handle)
+                );
     }
     
     /**

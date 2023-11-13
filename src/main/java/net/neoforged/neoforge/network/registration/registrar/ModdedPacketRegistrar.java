@@ -86,6 +86,11 @@ public class ModdedPacketRegistrar implements IPayloadRegistrarWithAcceptableRan
         return configured.flowing(flow);
     }
     
+    @Override
+    public IPayloadRegistrarWithAcceptableRange bidirectional() {
+        return this;
+    }
+    
     private void configuration(final ResourceLocation id, ConfigurationRegistration<?> registration) {
         validatePayload(id, registration.type(), configurationPayloads);
         
@@ -169,6 +174,12 @@ public class ModdedPacketRegistrar implements IPayloadRegistrarWithAcceptableRan
         @Override
         public IPayloadRegistrarWithAcceptableRange flowing(PacketFlow flow) {
             this.flow = flow;
+            return this;
+        }
+        
+        @Override
+        public IPayloadRegistrarWithAcceptableRange bidirectional() {
+            this.flow = null;
             return this;
         }
     }

@@ -7,6 +7,8 @@ import net.minecraft.server.network.ConfigurationTask;
 import net.neoforged.neoforge.network.handling.*;
 import net.neoforged.neoforge.network.reading.IPayloadReader;
 
+import java.util.function.Consumer;
+
 /**
  * Defines a registrar for custom payloads that can be sent over the network.
  * <p>
@@ -86,6 +88,31 @@ public interface IPayloadRegistrar {
     <T extends CustomPacketPayload> IPayloadRegistrarWithAcceptableRange play(ResourceLocation id, Class<T> type, IPayloadReader<T> reader, IPlayPayloadHandler<T> handler);
     
     /**
+     * Registers a new payload type for the play phase.
+     * <p>
+     *     This method allows different handlers to be registered for different packet-flows.
+     *     <br>
+     *     In practice this means that you can register a different handler for clientbound and serverbound packets,
+     *     which allows you to handle them differently on the client and server side.
+     * </p>
+     *
+     * @param id The id of the payload.
+     * @param type The class of the payload.
+     * @param reader The reader for the payload.
+     * @param handler The handler for the payload.
+     * @param <T> The type of the payload.
+     * @return The registrar.
+     *
+     * @implNote This method will capture all internal errors and wrap them in a {@link RegistrationFailedException}.
+     */
+    default <T extends CustomPacketPayload> IPayloadRegistrarWithAcceptableRange play(ResourceLocation id, Class<T> type, IPayloadReader<T> reader, Consumer<PlayPayloadHandler.Builder<T>> handler) {
+        final PlayPayloadHandler.Builder<T> builder = new PlayPayloadHandler.Builder<>();
+        handler.accept(builder);
+        return play(id, type, reader, builder.create());
+    }
+    
+    
+    /**
      * Registers a new payload type for the configuration phase.
      *
      * @param id The id of the payload.
@@ -100,6 +127,30 @@ public interface IPayloadRegistrar {
     <T extends CustomPacketPayload> IPayloadRegistrarWithAcceptableRange configuration(ResourceLocation id, Class<T> type, IPayloadReader<T> reader, IConfigurationPayloadHandler<T> handler);
     
     /**
+     * Registers a new payload type for the configuration phase.
+     * <p>
+     *     This method allows different handlers to be registered for different packet-flows.
+     *     <br>
+     *     In practice this means that you can register a different handler for clientbound and serverbound packets,
+     *     which allows you to handle them differently on the client and server side.
+     * </p>
+     *
+     * @param id The id of the payload.
+     * @param type The class of the payload.
+     * @param reader The reader for the payload.
+     * @param handler The handler for the payload.
+     * @param <T> The type of the payload.
+     * @return The registrar.
+     *
+     * @implNote This method will capture all internal errors and wrap them in a {@link RegistrationFailedException}.
+     */
+    default <T extends CustomPacketPayload> IPayloadRegistrarWithAcceptableRange configuration(ResourceLocation id, Class<T> type, IPayloadReader<T> reader, Consumer<ConfigurationPayloadHandler.Builder<T>> handler) {
+        final ConfigurationPayloadHandler.Builder<T> builder = new ConfigurationPayloadHandler.Builder<>();
+        handler.accept(builder);
+        return configuration(id, type, reader, builder.create());
+    }
+    
+    /**
      * Registers a new payload type for all supported phases.
      *
      * @param id The id of the payload.
@@ -112,5 +163,29 @@ public interface IPayloadRegistrar {
      */
     default <T extends CustomPacketPayload> IPayloadRegistrarWithAcceptableRange common(ResourceLocation id, Class<T> type, IPayloadReader<T> reader, IPayloadHandler<T> handler) {
         return play(id, type, reader, handler::handle).configuration(id, type, reader, handler::handle);
+    }
+    
+    /**
+     * Registers a new payload type for all supported phases.
+     * <p>
+     *     This method allows different handlers to be registered for different packet-flows.
+     *     <br>
+     *     In practice this means that you can register a different handler for clientbound and serverbound packets,
+     *     which allows you to handle them differently on the client and server side.
+     * </p>
+     *
+     * @param id The id of the payload.
+     * @param type The class of the payload.
+     * @param reader The reader for the payload.
+     * @param handler The handler for the payload.
+     * @return The registrar.
+     *
+     * @param <T> The type of the payload.
+     */
+    default <T extends CustomPacketPayload> IPayloadRegistrarWithAcceptableRange common(ResourceLocation id, Class<T> type, IPayloadReader<T> reader, Consumer<PayloadHandlerBuilder<T>> handler) {
+        final PayloadHandlerBuilder<T> builder = new PayloadHandlerBuilder<>();
+        handler.accept(builder);
+        
+        return play(id, type, reader, builder::handle).configuration(id, type, reader, builder::handle);
     }
 }
