@@ -1,0 +1,10 @@
+--- a/net/minecraft/client/multiplayer/CommonListenerCookie.java
++++ b/net/minecraft/client/multiplayer/CommonListenerCookie.java
+@@ -15,6 +15,7 @@
+    WorldSessionTelemetryManager telemetryManager,
+    RegistryAccess.Frozen receivedRegistries,
+    FeatureFlagSet enabledFeatures,
++   boolean isModdedConnection,
+    @Nullable String serverBrand,
+    @Nullable ServerData serverData,
+    @Nullable Screen postDisconnectScreen
