@@ -19,7 +19,6 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class RegistrationFailedException extends RuntimeException {
     
-    private final Class<?> payloadClass;
     private final ResourceLocation id;
     private final String namespace;
     private final Reason reason;
@@ -28,14 +27,12 @@ public class RegistrationFailedException extends RuntimeException {
      * Creates a new exception with the given parameters.
      * The reason can not be unknown.
      *
-     * @param payloadClass The class of the payload that was being registered.
      * @param id The id of the payload that was being registered.
      * @param namespace The namespace the payload was being registered in.
      * @param reason The reason the registration failed.
      */
-    public RegistrationFailedException(Class<?> payloadClass, ResourceLocation id, String namespace, Reason reason) {
-        super(reason.format(payloadClass, id, namespace));
-        this.payloadClass = payloadClass;
+    public RegistrationFailedException(ResourceLocation id, String namespace, Reason reason) {
+        super(reason.format(id, namespace));
         this.id = id;
         this.namespace = namespace;
         this.reason = reason;
@@ -49,26 +46,15 @@ public class RegistrationFailedException extends RuntimeException {
      * Creates a new exception with the given parameters.
      * Automatically sets the reason to unknown, and passes the given throwable to the super constructor as reason for the exception.
      *
-     * @param payloadClass The class of the payload that was being registered.
      * @param id The id of the payload that was being registered.
      * @param namespace The namespace the payload was being registered in.
      * @param throwable The throwable that caused the registration to fail. 
      */
-    public RegistrationFailedException(Class<?> payloadClass, ResourceLocation id, String namespace, Throwable throwable) {
-        super(Reason.UNKNOWN.format(payloadClass, id, namespace), throwable);
-        this.payloadClass = payloadClass;
+    public RegistrationFailedException(ResourceLocation id, String namespace, Throwable throwable) {
+        super(Reason.UNKNOWN.format(id, namespace), throwable);
         this.id = id;
         this.namespace = namespace;
         reason = Reason.UNKNOWN;
-    }
-    
-    /**
-     * The class of the payload that was being registered.
-     *
-     * @return The class of the payload that was being registered.
-     */
-    public Class<?> getpayloadClass() {
-        return payloadClass;
     }
     
     /**
@@ -105,15 +91,15 @@ public class RegistrationFailedException extends RuntimeException {
         /**
          * The payload id is already registered.
          */
-        DUPLICATE_ID((payloadClass, id, namespace) -> "Duplicate payload id " + id + " for payload " + payloadClass.getName() + " in namespace " + namespace + "."),
+        DUPLICATE_ID((id, namespace) -> "Duplicate payload id " + id + " for payload in namespace " + namespace + "."),
         /**
          * The payload id is registered in the wrong namespace.
          */
-        INVALID_NAMESPACE((payloadClass, id, namespace) -> "Try registering payload in namespace " + namespace + " for payload " + payloadClass.getName() + " with id " + id + "."),
+        INVALID_NAMESPACE((id, namespace) -> "Try registering payload in namespace " + namespace + " for payload with id " + id + "."),
         /**
          * Some other unknown reason, an exception was thrown downstream.
          */
-        UNKNOWN((payloadClass, id, namespace) -> "General payload registration failure for payload " + payloadClass.getName() + " with id " + id + " in namespace " + namespace + ".");
+        UNKNOWN((id, namespace) -> "General payload registration failure for payload with id " + id + " in namespace " + namespace + ".");
         
         /**
          * The internal formatter used to format the reason.
@@ -128,8 +114,8 @@ public class RegistrationFailedException extends RuntimeException {
          * {@inheritDoc}
          */
         @Override
-        public String format(Class<?> payloadClass, ResourceLocation id, String namespace) {
-            return this.formatter.format(payloadClass, id, namespace);
+        public String format(ResourceLocation id, String namespace) {
+            return this.formatter.format(id, namespace);
         }
     }
     
@@ -142,11 +128,10 @@ public class RegistrationFailedException extends RuntimeException {
         /**
          * Creates a nice error message for the given parameters.
          *
-         * @param payloadClass The class of the payload that was being registered.
          * @param id The id of the payload that was being registered.
          * @param namespace The namespace the payload was being registered in.
          * @return A nice error message for the given parameters.
          */
-        String format(Class<?> payloadClass, ResourceLocation id, String namespace);
+        String format(ResourceLocation id, String namespace);
     }
 }

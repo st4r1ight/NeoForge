@@ -3,20 +3,20 @@ package net.neoforged.neoforge.network.event;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.Event;
-import net.neoforged.fml.ModLoadingContext;
-import net.neoforged.fml.event.IModBusEvent;
 import net.neoforged.neoforge.network.registration.registrar.ConfigurationRegistration;
+import net.neoforged.neoforge.network.registration.registrar.IPayloadRegistrar;
 import net.neoforged.neoforge.network.registration.registrar.ModdedPacketRegistrar;
 import net.neoforged.neoforge.network.registration.registrar.PlayRegistration;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-public class RegisterPacketHandlerEvent extends Event implements IModBusEvent {
+public class RegisterPacketHandlerEvent extends Event {
     
     private final Map<String, ModdedPacketRegistrar> registrarsByNamespace = Collections.synchronizedMap(new HashMap<>());
     
-    public ModdedPacketRegistrar registrar() {
-        final String namespace = ModLoadingContext.get().getActiveNamespace();
+    public IPayloadRegistrar registrar(String namespace) {
         return registrarsByNamespace.computeIfAbsent(namespace, ModdedPacketRegistrar::new);
     }
     

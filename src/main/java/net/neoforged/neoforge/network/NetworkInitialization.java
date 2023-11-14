@@ -5,51 +5,40 @@
 
 package net.neoforged.neoforge.network;
 
-import java.util.Arrays;
-import java.util.List;
-
 import net.minecraft.network.protocol.PacketFlow;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion;
-import net.neoforged.neoforge.network.event.EventNetworkChannel;
 import net.neoforged.neoforge.network.event.RegisterPacketHandlerEvent;
 import net.neoforged.neoforge.network.handlers.ClientForgeRegistryHandler;
 import net.neoforged.neoforge.network.handlers.ServerForgeRegistryHandler;
-import net.neoforged.neoforge.network.handling.ConfigurationPayloadContext;
-import net.neoforged.neoforge.network.handling.IConfigurationPayloadHandler;
 import net.neoforged.neoforge.network.payload.FrozenRegistryPayload;
 import net.neoforged.neoforge.network.payload.FrozenRegistrySyncCompletePayload;
 import net.neoforged.neoforge.network.payload.FrozenRegistrySyncStartPayload;
-import net.neoforged.neoforge.network.simple.SimpleChannel;
-import net.neoforged.neoforge.registries.RegistryManager;
+import net.neoforged.neoforge.network.registration.registrar.IPayloadRegistrar;
 import org.jetbrains.annotations.ApiStatus;
 
 @Mod.EventBusSubscriber(modid = NeoForgeVersion.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @ApiStatus.Internal
 public class NetworkInitialization {
-
+    
     @SubscribeEvent
     public static void register(final RegisterPacketHandlerEvent event) {
-        event.registrar()
-                .withVersion(buildNetworkVersion())
-                .flowing(PacketFlow.CLIENTBOUND)
+        final IPayloadRegistrar registrar = event.registrar(NeoForgeVersion.MOD_ID)
+                                                    .versioned(buildNetworkVersion());
+        registrar
                 .configuration(
                         FrozenRegistrySyncStartPayload.ID,
-                        FrozenRegistrySyncStartPayload.class,
                         FrozenRegistrySyncStartPayload::new,
                         handlers -> handlers.client(ClientForgeRegistryHandler.getInstance()::handle)
                 )
                 .configuration(
                         FrozenRegistryPayload.ID,
-                        FrozenRegistryPayload.class,
                         FrozenRegistryPayload::new,
                         handlers -> handlers.client(ClientForgeRegistryHandler.getInstance()::handle)
                 )
-                .bidirectional()
                 .configuration(
                         FrozenRegistrySyncCompletePayload.ID,
-                        FrozenRegistrySyncCompletePayload.class,
                         FrozenRegistrySyncCompletePayload::new,
                         handlers -> handlers.client(ClientForgeRegistryHandler.getInstance()::handle)
                                             .server(ServerForgeRegistryHandler.getInstance()::handle)
@@ -82,20 +71,7 @@ public class NetworkInitialization {
 /*    public static SimpleChannel getHandshakeChannel() {
         SimpleChannel handshakeChannel = NetworkRegistry.ChannelBuilder.named(NetworkConstants.FML_HANDSHAKE_RESOURCE).clientAcceptedVersions(a -> true).serverAcceptedVersions(a -> true).networkProtocolVersion(() -> NetworkConstants.NETVERSION).simpleChannel();
 
-        handshakeChannel.simpleLoginMessageBuilder(HandshakeMessages.C2SAcknowledge.class, 99, LoginNetworkDirection.LOGIN_TO_SERVER).decoder(HandshakeMessages.C2SAcknowledge::decode).consumerNetworkThread(HandshakeHandler.indexFirst(HandshakeHandler::handleClientAck)).add();
-
-        handshakeChannel.simpleLoginMessageBuilder(HandshakeMessages.S2CModData.class, 5, LoginNetworkDirection.LOGIN_TO_CLIENT).decoder(HandshakeMessages.S2CModData::decode).markAsLoginPacket().noResponse().consumerNetworkThread(HandshakeHandler.consumerFor(HandshakeHandler::handleModData)).add();
-
-        handshakeChannel.simpleLoginMessageBuilder(HandshakeMessages.S2CModList.class, 1, LoginNetworkDirection.LOGIN_TO_CLIENT).decoder(HandshakeMessages.S2CModList::decode).markAsLoginPacket().consumerNetworkThread(HandshakeHandler.consumerFor(HandshakeHandler::handleServerModListOnClient)).add();
-
-        handshakeChannel.simpleLoginMessageBuilder(HandshakeMessages.C2SModListReply.class, 2, LoginNetworkDirection.LOGIN_TO_SERVER).decoder(HandshakeMessages.C2SModListReply::decode).consumerNetworkThread(HandshakeHandler.indexFirst(HandshakeHandler::handleClientModListOnServer)).add();
-
-        handshakeChannel.simpleLoginMessageBuilder(HandshakeMessages.S2CRegistry.class, 3, LoginNetworkDirection.LOGIN_TO_CLIENT).decoder(HandshakeMessages.S2CRegistry::decode).buildLoginPacketList(RegistryManager::generateRegistryPackets). //TODO: Make this non-static, and store a cache on the client.
-                consumerNetworkThread(HandshakeHandler.consumerFor(HandshakeHandler::handleRegistryMessage)).add();
-
         handshakeChannel.simpleLoginMessageBuilder(HandshakeMessages.S2CConfigData.class, 4, LoginNetworkDirection.LOGIN_TO_CLIENT).decoder(HandshakeMessages.S2CConfigData::decode).buildLoginPacketList(ConfigSync.INSTANCE::syncConfigs).consumerNetworkThread(HandshakeHandler.consumerFor(HandshakeHandler::handleConfigSync)).add();
-
-        handshakeChannel.simpleLoginMessageBuilder(HandshakeMessages.S2CChannelMismatchData.class, 6, LoginNetworkDirection.LOGIN_TO_CLIENT).decoder(HandshakeMessages.S2CChannelMismatchData::decode).consumerNetworkThread(HandshakeHandler.consumerFor(HandshakeHandler::handleModMismatchData)).add();
 
         return handshakeChannel;
     }

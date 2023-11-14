@@ -1,10 +1,13 @@
 package net.neoforged.neoforge.network.registration.registrar;
 
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPlayPayloadHandler;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public final class PlayPayloadHandler<T extends CustomPacketPayload> implements IPlayPayloadHandler<T> {
     
@@ -29,6 +32,22 @@ public final class PlayPayloadHandler<T extends CustomPacketPayload> implements 
                 serverSide.handle(context, payload);
             }
         }
+    }
+    
+    Optional<PacketFlow> flow() {
+        if (clientSide == null && serverSide == null) {
+            return Optional.empty();
+        }
+        
+        if (clientSide == null) {
+            return Optional.of(PacketFlow.SERVERBOUND);
+        }
+        
+        if (serverSide == null) {
+            return Optional.of(PacketFlow.CLIENTBOUND);
+        }
+        
+        return Optional.empty();
     }
     
     public static class Builder<T extends CustomPacketPayload> {

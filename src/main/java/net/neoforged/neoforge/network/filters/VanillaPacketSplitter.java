@@ -49,11 +49,10 @@ public class VanillaPacketSplitter {
 
     @SubscribeEvent
     public static void register(final RegisterPacketHandlerEvent event) {
-        event.registrar()
-                .withVersion(VERSION)
+        event.registrar(NeoForgeVersion.MOD_ID)
+                .versioned(versioning -> versioning.withVersion(VERSION).optional())
                 .common(
                         SplitPacketPayload.ID,
-                        SplitPacketPayload.class,
                         SplitPacketPayload::new,
                         VanillaPacketSplitter::receivedPacket
                 );

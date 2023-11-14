@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.OptionalInt;
 
 public record ConfigurationRegistration<T extends CustomPacketPayload>(
-        Class<T> type,
         IPayloadReader<T> reader,
         IConfigurationPayloadHandler<T> handler,
         OptionalInt version,
@@ -21,9 +20,10 @@ public record ConfigurationRegistration<T extends CustomPacketPayload>(
         Optional<PacketFlow> flow,
         boolean optional
 ) implements IConfigurationPayloadHandler<CustomPacketPayload>, IPayloadReader<CustomPacketPayload> {
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void handle(ConfigurationPayloadContext context, CustomPacketPayload payload) {
-        handler.handle(context, type.cast(payload));
+        ((IConfigurationPayloadHandler) handler).handle(context, payload);
     }
     
     @Override

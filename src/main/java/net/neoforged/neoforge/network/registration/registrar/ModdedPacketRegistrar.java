@@ -2,7 +2,6 @@ package net.neoforged.neoforge.network.registration.registrar;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IConfigurationPayloadHandler;
@@ -12,15 +11,34 @@ import net.neoforged.neoforge.network.reading.IPayloadReader;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.function.Consumer;
 
-public class ModdedPacketRegistrar implements IPayloadRegistrarWithAcceptableRange {
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+public class ModdedPacketRegistrar implements IPayloadRegistrar, INetworkPayloadVersioningBuilder {
     
     private final String modId;
-    private final Map<ResourceLocation, ConfigurationRegistration<?>> configurationPayloads = Maps.newHashMap();
-    private final Map<ResourceLocation, PlayRegistration<?>> playPayloads = Maps.newHashMap();
+    private final Map<ResourceLocation, ConfigurationRegistration<?>> configurationPayloads;
+    private final Map<ResourceLocation, PlayRegistration<?>> playPayloads;
+    private OptionalInt version = OptionalInt.empty();
+    private OptionalInt minimalVersion = OptionalInt.empty();
+    private OptionalInt maximalVersion = OptionalInt.empty();
+    private boolean optional = false;
+    
     
     public ModdedPacketRegistrar(String modId) {
         this.modId = modId;
+        playPayloads = Maps.newHashMap();
+        configurationPayloads = Maps.newHashMap();
+    }
+    
+    private ModdedPacketRegistrar(ModdedPacketRegistrar source) {
+        this.modId = source.modId;
+        this.playPayloads = source.playPayloads;
+        this.configurationPayloads = source.configurationPayloads;
+        this.version = source.version;
+        this.minimalVersion = source.minimalVersion;
+        this.maximalVersion = source.maximalVersion;
+        this.optional = source.optional;
     }
     
     public Map<ResourceLocation, ConfigurationRegistration<?>> getConfigurationRegistrations() {
@@ -31,157 +49,103 @@ public class ModdedPacketRegistrar implements IPayloadRegistrarWithAcceptableRan
         return ImmutableMap.copyOf(playPayloads);
     }
     
-    @Override
-    public String getNamespace() {
-        return modId;
-    }
     
     @Override
-    public <T extends CustomPacketPayload> IPayloadRegistrarWithAcceptableRange play(ResourceLocation id, Class<T> type, IPayloadReader<T> reader, IPlayPayloadHandler<T> handler) {
+    public <T extends CustomPacketPayload> IPayloadRegistrar play(ResourceLocation id, IPayloadReader<T> reader, IPlayPayloadHandler<T> handler) {
         play(
                 id, new PlayRegistration<>(
-                        type, reader, handler, OptionalInt.empty(), OptionalInt.empty(), OptionalInt.empty(), Optional.empty(), false
+                        reader, handler, version, minimalVersion, maximalVersion, Optional.empty(), optional
                 )
         );
         return this;
     }
     
     @Override
-    public <T extends CustomPacketPayload> IPayloadRegistrarWithAcceptableRange configuration(ResourceLocation id, Class<T> type, IPayloadReader<T> reader, IConfigurationPayloadHandler<T> handler) {
+    public <T extends CustomPacketPayload> IPayloadRegistrar configuration(ResourceLocation id, IPayloadReader<T> reader, IConfigurationPayloadHandler<T> handler) {
         configuration(
                 id, new ConfigurationRegistration<>(
-                        type, reader, handler, OptionalInt.empty(), OptionalInt.empty(), OptionalInt.empty(), Optional.empty(), false
+                        reader, handler, version, minimalVersion, maximalVersion, Optional.empty(), optional
                 )
         );
         return this;
     }
     
     @Override
-    public IPayloadRegistrarWithAcceptableRange withVersion(int version) {
-        final Configured configured = new Configured();
-        return configured.withVersion(version);
+    public IPayloadRegistrar versioned(Consumer<INetworkPayloadVersioningBuilder> configurer) {
+        final ModdedPacketRegistrar copy = new ModdedPacketRegistrar(this);
+        configurer.accept(copy);
+        return copy;
     }
     
     @Override
-    public IPayloadRegistrarWithAcceptableRange withMinimalVersion(int min) {
-        final Configured configured = new Configured();
-        return configured.withMinimalVersion(min);
+    public <T extends CustomPacketPayload> IPayloadRegistrar play(ResourceLocation id, IPayloadReader<T> reader, Consumer<PlayPayloadHandler.Builder<T>> handler) {
+        final PlayPayloadHandler.Builder<T> builder = new PlayPayloadHandler.Builder<>();
+        handler.accept(builder);
+        final PlayPayloadHandler<T> innerHandler = builder.create();
+        play(
+                id, new PlayRegistration<>(
+                        reader, innerHandler, version, minimalVersion, maximalVersion, innerHandler.flow(), optional
+                )
+        );
+        return this;
     }
     
     @Override
-    public IPayloadRegistrarWithAcceptableRange withMaximalVersion(int max) {
-        final Configured configured = new Configured();
-        return configured.withMaximalVersion(max);
-    }
-    
-    @Override
-    public IPayloadRegistrarWithAcceptableRange optional() {
-        final Configured configured = new Configured();
-        return configured.optional();
-    }
-    
-    @Override
-    public IPayloadRegistrarWithAcceptableRange flowing(PacketFlow flow) {
-        final Configured configured = new Configured();
-        return configured.flowing(flow);
-    }
-    
-    @Override
-    public IPayloadRegistrarWithAcceptableRange bidirectional() {
+    public <T extends CustomPacketPayload> IPayloadRegistrar configuration(ResourceLocation id, IPayloadReader<T> reader, Consumer<ConfigurationPayloadHandler.Builder<T>> handler) {
+        final ConfigurationPayloadHandler.Builder<T> builder = new ConfigurationPayloadHandler.Builder<>();
+        handler.accept(builder);
+        final ConfigurationPayloadHandler<T> innerHandler = builder.create();
+        configuration(
+                id, new ConfigurationRegistration<>(
+                        reader, innerHandler, version, minimalVersion, maximalVersion, innerHandler.flow(), optional
+                )
+        );
         return this;
     }
     
     private void configuration(final ResourceLocation id, ConfigurationRegistration<?> registration) {
-        validatePayload(id, registration.type(), configurationPayloads);
+        validatePayload(id, configurationPayloads);
         
         configurationPayloads.put(id, registration);
     }
     
     private void play(final ResourceLocation id, PlayRegistration<?> registration) {
-        validatePayload(id, registration.type(), playPayloads);
+        validatePayload(id, playPayloads);
         
         playPayloads.put(id, registration);
     }
     
-    private void validatePayload(ResourceLocation id, Class<?> type, final Map<ResourceLocation, ?> payloads) {
+    private void validatePayload(ResourceLocation id, final Map<ResourceLocation, ?> payloads) {
         if (payloads.containsKey(id)) {
-            throw new RegistrationFailedException(type, id, modId, RegistrationFailedException.Reason.DUPLICATE_ID);
+            throw new RegistrationFailedException(id, modId, RegistrationFailedException.Reason.DUPLICATE_ID);
         }
         
         if (!id.getNamespace().equals(modId)) {
-            throw new RegistrationFailedException(type, id, modId, RegistrationFailedException.Reason.INVALID_NAMESPACE);
+            throw new RegistrationFailedException(id, modId, RegistrationFailedException.Reason.INVALID_NAMESPACE);
         }
     }
     
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private class Configured implements IPayloadRegistrarWithAcceptableRange {
-        
-        private OptionalInt version = OptionalInt.empty();
-        private OptionalInt minimalVersion = OptionalInt.empty();
-        private OptionalInt maximalVersion = OptionalInt.empty();
-        private PacketFlow flow = null;
-        private boolean optional = false;
-        
-        @Override
-        public String getNamespace() {
-            return modId;
-        }
-        
-        @Override
-        public <T extends CustomPacketPayload> IPayloadRegistrarWithAcceptableRange play(ResourceLocation id, Class<T> type, IPayloadReader<T> reader, IPlayPayloadHandler<T> handler) {
-            ModdedPacketRegistrar.this.play(
-                    id, new PlayRegistration<>(
-                            type, reader, handler, version, minimalVersion, maximalVersion, Optional.ofNullable(flow), optional
-                    )
-            );
-            return this;
-        }
-        
-        @Override
-        public <T extends CustomPacketPayload> IPayloadRegistrarWithAcceptableRange configuration(ResourceLocation id, Class<T> type, IPayloadReader<T> reader, IConfigurationPayloadHandler<T> handler) {
-            ModdedPacketRegistrar.this.configuration(
-                    id, new ConfigurationRegistration<>(
-                            type, reader, handler, version, minimalVersion, maximalVersion, Optional.ofNullable(flow), optional
-                    )
-            );
-            return this;
-        }
-        
-        @Override
-        public IPayloadRegistrarWithAcceptableRange withVersion(int version) {
-            this.version = OptionalInt.of(version);
-            return this;
-        }
-        
-        @Override
-        public IPayloadRegistrarWithAcceptableRange withMinimalVersion(int min) {
-            this.minimalVersion = OptionalInt.of(min);
-            return this;
-        }
-        
-        @Override
-        public IPayloadRegistrarWithAcceptableRange withMaximalVersion(int max) {
-            this.maximalVersion = OptionalInt.of(max);
-            return this;
-        }
-        
-        @Override
-        public IPayloadRegistrarWithAcceptableRange optional() {
-            this.optional = true;
-            return this;
-        }
-        
-        @Override
-        public IPayloadRegistrarWithAcceptableRange flowing(PacketFlow flow) {
-            this.flow = flow;
-            return this;
-        }
-        
-        @Override
-        public IPayloadRegistrarWithAcceptableRange bidirectional() {
-            this.flow = null;
-            return this;
-        }
+    @Override
+    public INetworkPayloadVersioningBuilder withVersion(int version) {
+        this.version = OptionalInt.of(version);
+        return this;
     }
     
+    @Override
+    public INetworkPayloadVersioningBuilder withMinimalVersion(int min) {
+        this.minimalVersion = OptionalInt.of(min);
+        return this;
+    }
+    
+    @Override
+    public INetworkPayloadVersioningBuilder withMaximalVersion(int max) {
+        this.maximalVersion = OptionalInt.of(max);
+        return this;
+    }
+    
+    @Override
+    public INetworkPayloadVersioningBuilder optional() {
+        this.optional = true;
+        return this;
+    }
 }

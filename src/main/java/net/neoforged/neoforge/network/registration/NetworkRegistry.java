@@ -26,6 +26,8 @@ import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.config.ConfigTracker;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion;
 import net.neoforged.neoforge.network.connection.ConnectionUtils;
 import net.neoforged.neoforge.network.event.RegisterPacketHandlerEvent;
@@ -104,9 +106,7 @@ public class NetworkRegistry {
         
         setup = true;
         
-        final RegisterPacketHandlerEvent event = new RegisterPacketHandlerEvent();
-        ModLoader.get().postEventWrapContainerInModOrder(event);
-        
+        final RegisterPacketHandlerEvent event = NeoForge.EVENT_BUS.post(new RegisterPacketHandlerEvent());
         knownConfigurationRegistrations.clear();
         knownPlayRegistrations.clear();
         
