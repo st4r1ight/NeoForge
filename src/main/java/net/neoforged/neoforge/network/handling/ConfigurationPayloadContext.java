@@ -7,7 +7,6 @@ import net.minecraft.network.protocol.PacketFlow;
 import java.util.OptionalInt;
 
 public record ConfigurationPayloadContext(
-        OptionalInt version,
         IReplyHandler handler,
         IPacketHandler packetHandler,
         ITaskCompletedHandler taskCompletedHandler,

@@ -50,7 +50,8 @@ public class VanillaPacketSplitter {
     @SubscribeEvent
     public static void register(final RegisterPacketHandlerEvent event) {
         event.registrar(NeoForgeVersion.MOD_ID)
-                .versioned(versioning -> versioning.withVersion(VERSION).optional())
+                .versioned(NeoForgeVersion.getSpec())
+                .optional()
                 .common(
                         SplitPacketPayload.ID,
                         SplitPacketPayload::new,

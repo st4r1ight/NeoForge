@@ -3,13 +3,12 @@ package net.neoforged.neoforge.network.payload;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.network.reading.PayloadReadingContext;
 
 public record SplitPacketPayload(byte[] payload) implements CustomPacketPayload {
     
     public static final ResourceLocation ID = new ResourceLocation("neoforge", "split");
     
-    public SplitPacketPayload(FriendlyByteBuf buf, PayloadReadingContext context) {
+    public SplitPacketPayload(FriendlyByteBuf buf) {
         this(buf.readBytes(buf.readVarInt()).array());
     }
     

@@ -5,7 +5,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.network.ConfigurationTask;
 import net.neoforged.neoforge.network.handling.*;
-import net.neoforged.neoforge.network.reading.IPayloadReader;
 
 import java.util.function.Consumer;
 
@@ -16,12 +15,12 @@ import java.util.function.Consumer;
  * </p>
  * <p>
  *     The payload is written to the networks outgoing buffer using the {@link CustomPacketPayload#write(FriendlyByteBuf)} method.
- *     However, to read the payload from the incoming buffer, your registered {@link IPayloadReader} is used.
+ *     However, to read the payload from the incoming buffer, your registered {@link FriendlyByteBuf.Reader} is used.
  *     <br>
  *     When you implement your {@link CustomPacketPayload#write(FriendlyByteBuf)} method you do not need to write the id of the payload,
- *     neither do you need to read it in your {@link IPayloadReader} implementation. However, you do need to make sure that the
- *     id you pass into {@link #play(ResourceLocation, IPayloadReader, IPlayPayloadHandler)} and
- *     {@link #configuration(ResourceLocation, IPayloadReader, IConfigurationPayloadHandler)} is the same as the id you
+ *     neither do you need to read it in your {@link FriendlyByteBuf.Reader} implementation. However, you do need to make sure that the
+ *     id you pass into {@link #play(ResourceLocation, FriendlyByteBuf.Reader, IPlayPayloadHandler)} and
+ *     {@link #configuration(ResourceLocation, FriendlyByteBuf.Reader, IConfigurationPayloadHandler)} is the same as the id you
  *     return from your {@link CustomPacketPayload#id()}. We suggest using a <code>public static final ResourceLocation</code> field
  *     to store it and then reference it in both places.
  *     <br>
@@ -43,8 +42,8 @@ import java.util.function.Consumer;
  *         <li>Play payloads: These are payloads that are sent from the client to the server, or from the server to the client, during normal gameplay.</li>
  *         <li>Configuration payloads: These are payloads that are sent from the server to the client, or from the client to the server, during the login process, before the player is spawned.</li>
  *     </ul>
- *     You can register a custom payload for either of these types of payloads using the {@link #play(ResourceLocation, IPayloadReader, IPlayPayloadHandler)}
- *     and {@link #configuration(ResourceLocation, IPayloadReader, IConfigurationPayloadHandler)} methods respectively.
+ *     You can register a custom payload for either of these types of payloads using the {@link #play(ResourceLocation, FriendlyByteBuf.Reader, IPlayPayloadHandler)}
+ *     and {@link #configuration(ResourceLocation, FriendlyByteBuf.Reader, IConfigurationPayloadHandler)} methods respectively.
  *     <br>
  *     The difference between the play and configuration phases, if you like to call them that, is that the configuration phase generally requires
  *     a confirmation payload to be returned to the server to trigger the next phase. In the {@link ConfigurationPayloadContext context} passed into
@@ -56,7 +55,7 @@ import java.util.function.Consumer;
  *     Note: the processing of payloads happens solely on the network thread. You are yourself responsible for ensuring that any data you access
  *     in your handlers is either thread safe, or that you queue up your work to be done on the main thread, of the relevant side.
  *     This is particularly important for the {@link IPlayPayloadHandler} or {@link IConfigurationPayloadHandler} implementations that you pass to
- *     {@link #play(ResourceLocation, IPayloadReader, IPlayPayloadHandler)} or {@link #configuration(ResourceLocation, IPayloadReader, IConfigurationPayloadHandler)}
+ *     {@link #play(ResourceLocation, FriendlyByteBuf.Reader, IPlayPayloadHandler)} or {@link #configuration(ResourceLocation, FriendlyByteBuf.Reader, IConfigurationPayloadHandler)}
  *     respectively, since those are also invoked on the network thread.
  *     <br>
  *     The {@link PlayPayloadContext} and {@link ConfigurationPayloadContext} given to each of these handlers contains a {@link ISynchronizedWorkHandler}
@@ -65,28 +64,7 @@ import java.util.function.Consumer;
  * </p>
  */
 public interface IPayloadRegistrar {
-    
-    /**
-     * Configurers the copy of this registrar that is returned to use a specific version.
-     * <p>
-     *     This is a short circuit for calling {@link INetworkPayloadVersioningBuilder#withVersion(int)} in the callback passed to
-     *     {@link #versioned(Consumer)}.
-     * </p>
-     * @param version The version to use.
-     * @return A copy of this registrar with the version configured.
-     */
-    default IPayloadRegistrar versioned(int version) {
-        return versioned(builder -> builder.withVersion(version));
-    }
-    
-    /**
-     * Configures a copy of this registrar using the given configurer with respect to versioning of the payloads registered throuh it.
-     *
-     * @param configurer The configurer to use.
-     * @return A copy of this registrar with the versioning configured.
-     */
-    IPayloadRegistrar versioned(Consumer<INetworkPayloadVersioningBuilder> configurer);
-    
+
     /**
      * Registers a new payload type for the play phase.
      *
@@ -97,7 +75,7 @@ public interface IPayloadRegistrar {
      * @return The registrar.
      * @implNote This method will capture all internal errors and wrap them in a {@link RegistrationFailedException}.
      */
-    <T extends CustomPacketPayload> IPayloadRegistrar play(ResourceLocation id, IPayloadReader<T> reader, IPlayPayloadHandler<T> handler);
+    <T extends CustomPacketPayload> IPayloadRegistrar play(ResourceLocation id, FriendlyByteBuf.Reader<T> reader, IPlayPayloadHandler<T> handler);
     
     /**
      * Registers a new payload type for the play phase.
@@ -115,7 +93,7 @@ public interface IPayloadRegistrar {
      * @return The registrar.
      * @implNote This method will capture all internal errors and wrap them in a {@link RegistrationFailedException}.
      */
-    <T extends CustomPacketPayload> IPayloadRegistrar play(ResourceLocation id, IPayloadReader<T> reader, Consumer<PlayPayloadHandler.Builder<T>> handler);
+    <T extends CustomPacketPayload> IPayloadRegistrar play(ResourceLocation id, FriendlyByteBuf.Reader<T> reader, Consumer<PlayPayloadHandler.Builder<T>> handler);
     
     
     /**
@@ -128,7 +106,7 @@ public interface IPayloadRegistrar {
      * @return The registrar.
      * @implNote This method will capture all internal errors and wrap them in a {@link RegistrationFailedException}.
      */
-    <T extends CustomPacketPayload> IPayloadRegistrar configuration(ResourceLocation id, IPayloadReader<T> reader, IConfigurationPayloadHandler<T> handler);
+    <T extends CustomPacketPayload> IPayloadRegistrar configuration(ResourceLocation id, FriendlyByteBuf.Reader<T> reader, IConfigurationPayloadHandler<T> handler);
     
     /**
      * Registers a new payload type for the configuration phase.
@@ -146,7 +124,7 @@ public interface IPayloadRegistrar {
      * @return The registrar.
      * @implNote This method will capture all internal errors and wrap them in a {@link RegistrationFailedException}.
      */
-    <T extends CustomPacketPayload> IPayloadRegistrar configuration(ResourceLocation id, IPayloadReader<T> reader, Consumer<ConfigurationPayloadHandler.Builder<T>> handler);
+    <T extends CustomPacketPayload> IPayloadRegistrar configuration(ResourceLocation id, FriendlyByteBuf.Reader<T> reader, Consumer<ConfigurationPayloadHandler.Builder<T>> handler);
     
     /**
      * Registers a new payload type for all supported phases.
@@ -157,7 +135,7 @@ public interface IPayloadRegistrar {
      * @param handler The handler for the payload.
      * @return The registrar.
      */
-    default <T extends CustomPacketPayload> IPayloadRegistrar common(ResourceLocation id, IPayloadReader<T> reader, IPayloadHandler<T> handler) {
+    default <T extends CustomPacketPayload> IPayloadRegistrar common(ResourceLocation id, FriendlyByteBuf.Reader<T> reader, IPayloadHandler<T> handler) {
         return play(id, reader, handler::handle).configuration(id, reader, handler::handle);
     }
     
@@ -176,10 +154,31 @@ public interface IPayloadRegistrar {
      * @param handler The handler for the payload.
      * @return The registrar.
      */
-    default <T extends CustomPacketPayload> IPayloadRegistrar common(ResourceLocation id, IPayloadReader<T> reader, Consumer<PayloadHandlerBuilder<T>> handler) {
+    default <T extends CustomPacketPayload> IPayloadRegistrar common(ResourceLocation id, FriendlyByteBuf.Reader<T> reader, Consumer<PayloadHandlerBuilder<T>> handler) {
         final PayloadHandlerBuilder<T> builder = new PayloadHandlerBuilder<>();
         handler.accept(builder);
         
         return play(id, reader, builder::handle).configuration(id, reader, builder::handle);
     }
+    
+    /**
+     * Defines that the payloads registered by this registrar have a specific version associated with them.
+     * Clients connecting to a server with these payloads, will only be able to connect if they have the same version.
+     *
+     * @param version The version to use.
+     * @return The registrar, ready to configure payloads with that version.
+     */
+    IPayloadRegistrar versioned(String version);
+    
+    /**
+     * Defines that the payloads registered by this registrar are optional.
+     * Clients connecting to a server which do not have the payloads registered, will still be able to connect.
+     * <p>
+     *     If clients have also a version set, and a version mismatch occurs (so both client and server have the payloads registered,
+     *     yet have different versions), the connection attempt will fail.
+     *     In other words, marking a payload as optional does not exempt it from versioning, if it has that configured.
+     * </p>
+     * @return The registrar, ready to configure payloads as optional.
+     */
+    IPayloadRegistrar optional();
 }

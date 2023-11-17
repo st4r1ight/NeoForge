@@ -2,26 +2,23 @@ package net.neoforged.neoforge.network.registration.registrar;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IConfigurationPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPlayPayloadHandler;
-import net.neoforged.neoforge.network.reading.IPayloadReader;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.function.Consumer;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public class ModdedPacketRegistrar implements IPayloadRegistrar, INetworkPayloadVersioningBuilder {
+public class ModdedPacketRegistrar implements IPayloadRegistrar {
     
     private final String modId;
     private final Map<ResourceLocation, ConfigurationRegistration<?>> configurationPayloads;
     private final Map<ResourceLocation, PlayRegistration<?>> playPayloads;
-    private OptionalInt version = OptionalInt.empty();
-    private OptionalInt minimalVersion = OptionalInt.empty();
-    private OptionalInt maximalVersion = OptionalInt.empty();
+    private Optional<String> version = Optional.empty();
     private boolean optional = false;
     
     
@@ -36,8 +33,6 @@ public class ModdedPacketRegistrar implements IPayloadRegistrar, INetworkPayload
         this.playPayloads = source.playPayloads;
         this.configurationPayloads = source.configurationPayloads;
         this.version = source.version;
-        this.minimalVersion = source.minimalVersion;
-        this.maximalVersion = source.maximalVersion;
         this.optional = source.optional;
     }
     
@@ -51,53 +46,46 @@ public class ModdedPacketRegistrar implements IPayloadRegistrar, INetworkPayload
     
     
     @Override
-    public <T extends CustomPacketPayload> IPayloadRegistrar play(ResourceLocation id, IPayloadReader<T> reader, IPlayPayloadHandler<T> handler) {
+    public <T extends CustomPacketPayload> IPayloadRegistrar play(ResourceLocation id, FriendlyByteBuf.Reader<T> reader, IPlayPayloadHandler<T> handler) {
         play(
                 id, new PlayRegistration<>(
-                        reader, handler, version, minimalVersion, maximalVersion, Optional.empty(), optional
+                        reader, handler, version, Optional.empty(), optional
                 )
         );
         return this;
     }
     
     @Override
-    public <T extends CustomPacketPayload> IPayloadRegistrar configuration(ResourceLocation id, IPayloadReader<T> reader, IConfigurationPayloadHandler<T> handler) {
+    public <T extends CustomPacketPayload> IPayloadRegistrar configuration(ResourceLocation id, FriendlyByteBuf.Reader<T> reader, IConfigurationPayloadHandler<T> handler) {
         configuration(
                 id, new ConfigurationRegistration<>(
-                        reader, handler, version, minimalVersion, maximalVersion, Optional.empty(), optional
+                        reader, handler, version, Optional.empty(), optional
                 )
         );
         return this;
     }
     
     @Override
-    public IPayloadRegistrar versioned(Consumer<INetworkPayloadVersioningBuilder> configurer) {
-        final ModdedPacketRegistrar copy = new ModdedPacketRegistrar(this);
-        configurer.accept(copy);
-        return copy;
-    }
-    
-    @Override
-    public <T extends CustomPacketPayload> IPayloadRegistrar play(ResourceLocation id, IPayloadReader<T> reader, Consumer<PlayPayloadHandler.Builder<T>> handler) {
+    public <T extends CustomPacketPayload> IPayloadRegistrar play(ResourceLocation id, FriendlyByteBuf.Reader<T> reader, Consumer<PlayPayloadHandler.Builder<T>> handler) {
         final PlayPayloadHandler.Builder<T> builder = new PlayPayloadHandler.Builder<>();
         handler.accept(builder);
         final PlayPayloadHandler<T> innerHandler = builder.create();
         play(
                 id, new PlayRegistration<>(
-                        reader, innerHandler, version, minimalVersion, maximalVersion, innerHandler.flow(), optional
+                        reader, innerHandler, version, innerHandler.flow(), optional
                 )
         );
         return this;
     }
     
     @Override
-    public <T extends CustomPacketPayload> IPayloadRegistrar configuration(ResourceLocation id, IPayloadReader<T> reader, Consumer<ConfigurationPayloadHandler.Builder<T>> handler) {
+    public <T extends CustomPacketPayload> IPayloadRegistrar configuration(ResourceLocation id, FriendlyByteBuf.Reader<T> reader, Consumer<ConfigurationPayloadHandler.Builder<T>> handler) {
         final ConfigurationPayloadHandler.Builder<T> builder = new ConfigurationPayloadHandler.Builder<>();
         handler.accept(builder);
         final ConfigurationPayloadHandler<T> innerHandler = builder.create();
         configuration(
                 id, new ConfigurationRegistration<>(
-                        reader, innerHandler, version, minimalVersion, maximalVersion, innerHandler.flow(), optional
+                        reader, innerHandler, version, innerHandler.flow(), optional
                 )
         );
         return this;
@@ -126,26 +114,16 @@ public class ModdedPacketRegistrar implements IPayloadRegistrar, INetworkPayload
     }
     
     @Override
-    public INetworkPayloadVersioningBuilder withVersion(int version) {
-        this.version = OptionalInt.of(version);
-        return this;
+    public IPayloadRegistrar versioned(String version) {
+        final ModdedPacketRegistrar clone = new ModdedPacketRegistrar(this);
+        clone.version = Optional.of(version);
+        return clone;
     }
     
     @Override
-    public INetworkPayloadVersioningBuilder withMinimalVersion(int min) {
-        this.minimalVersion = OptionalInt.of(min);
-        return this;
-    }
-    
-    @Override
-    public INetworkPayloadVersioningBuilder withMaximalVersion(int max) {
-        this.maximalVersion = OptionalInt.of(max);
-        return this;
-    }
-    
-    @Override
-    public INetworkPayloadVersioningBuilder optional() {
-        this.optional = true;
-        return this;
+    public IPayloadRegistrar optional() {
+        final ModdedPacketRegistrar clone = new ModdedPacketRegistrar(this);
+        clone.optional = true;
+        return clone;
     }
 }

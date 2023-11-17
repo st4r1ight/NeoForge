@@ -427,7 +427,7 @@ public class NeoForgeMod {
     }
 
     public NeoForgeMod(IEventBus modEventBus, Dist dist) {
-        LOGGER.info(NEOFORGEMOD, "NeoForge mod loading, preferredVersion {}, for MC {} with MCP {}", NeoForgeVersion.getVersion(), NeoFormVersion.getMCVersion(), NeoFormVersion.getMCPVersion());
+        LOGGER.info(NEOFORGEMOD, "NeoForge mod loading, version {}, for MC {} with MCP {}", NeoForgeVersion.getVersion(), NeoFormVersion.getMCVersion(), NeoFormVersion.getMCPVersion());
         ForgeSnapshotsMod.logStartupWarning();
 
         CrashReportCallables.registerCrashCallable("Crash Report UUID", () -> {
@@ -436,7 +436,7 @@ public class NeoForgeMod {
             return uuid.toString();
         });
 
-        LOGGER.debug(NEOFORGEMOD, "Loading Network data for FML net preferredVersion: {}", NetworkConstants.init());
+        LOGGER.debug(NEOFORGEMOD, "Loading Network data for FML net version: {}", NetworkConstants.init());
         CrashReportCallables.registerCrashCallable("FML", NeoForgeVersion::getSpec);
         CrashReportCallables.registerCrashCallable("NeoForge", () -> NeoForgeVersion.getGroup() + ":" + NeoForgeVersion.getVersion());
 
@@ -470,7 +470,7 @@ public class NeoForgeMod {
         ForgeDeferredRegistriesSetup.setup(modEventBus);
         // Forge does not display problems when the remote is not matching.
         ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> "ANY", (remote, isServer) -> true));
-        StartupMessageManager.addModMessage("NeoForge preferredVersion " + NeoForgeVersion.getVersion());
+        StartupMessageManager.addModMessage("NeoForge version " + NeoForgeVersion.getVersion());
 
         NeoForge.EVENT_BUS.addListener(VillagerTradingManager::loadTrades);
         NeoForge.EVENT_BUS.register(new NeoForgeEventHandler());

@@ -443,7 +443,7 @@ public class FluidUtil {
     }
 
     /**
-     * ItemStack preferredVersion of {@link #tryPlaceFluid(Player, Level, InteractionHand, BlockPos, IFluidHandler, FluidStack)}.
+     * ItemStack version of {@link #tryPlaceFluid(Player, Level, InteractionHand, BlockPos, IFluidHandler, FluidStack)}.
      * Use the returned {@link FluidActionResult} to update the container ItemStack.
      *
      * @param player    Player who places the fluid. May be null for blocks like dispensers.

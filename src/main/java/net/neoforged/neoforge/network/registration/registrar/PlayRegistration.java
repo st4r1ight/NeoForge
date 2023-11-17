@@ -5,22 +5,17 @@ import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPlayPayloadHandler;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
-import net.neoforged.neoforge.network.reading.IPayloadReader;
-import net.neoforged.neoforge.network.reading.PayloadReadingContext;
 
 import java.util.Optional;
 import java.util.OptionalInt;
 
 public record PlayRegistration<T extends CustomPacketPayload>(
-        IPayloadReader<T> reader,
+        FriendlyByteBuf.Reader<T> reader,
         IPlayPayloadHandler<T> handler,
-        OptionalInt version,
-        OptionalInt minVersion,
-        OptionalInt maxVersion,
-        
+        Optional<String> version,
         Optional<PacketFlow> flow,
         boolean optional
-) implements IPlayPayloadHandler<CustomPacketPayload>, IPayloadReader<CustomPacketPayload> {
+) implements IPlayPayloadHandler<CustomPacketPayload>, FriendlyByteBuf.Reader<CustomPacketPayload> {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void handle(PlayPayloadContext context, CustomPacketPayload payload) {
@@ -28,7 +23,7 @@ public record PlayRegistration<T extends CustomPacketPayload>(
     }
     
     @Override
-    public CustomPacketPayload readPayload(FriendlyByteBuf buffer, PayloadReadingContext context) {
-        return reader.readPayload(buffer, context);
+    public CustomPacketPayload apply(FriendlyByteBuf buffer) {
+        return reader.apply(buffer);
     }
 }

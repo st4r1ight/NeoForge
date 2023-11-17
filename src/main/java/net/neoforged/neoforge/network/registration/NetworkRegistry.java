@@ -24,10 +24,8 @@ import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
-import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.config.ConfigTracker;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion;
 import net.neoforged.neoforge.network.connection.ConnectionUtils;
 import net.neoforged.neoforge.network.event.RegisterPacketHandlerEvent;
@@ -40,7 +38,6 @@ import net.neoforged.neoforge.network.negotiation.NegotiableNetworkComponent;
 import net.neoforged.neoforge.network.negotiation.NegotiationResult;
 import net.neoforged.neoforge.network.negotiation.NetworkComponentNegotiator;
 import net.neoforged.neoforge.network.payload.*;
-import net.neoforged.neoforge.network.reading.PayloadReadingContext;
 import net.neoforged.neoforge.network.registration.registrar.ConfigurationRegistration;
 import net.neoforged.neoforge.network.registration.registrar.PlayRegistration;
 import org.jetbrains.annotations.ApiStatus;
@@ -205,12 +202,7 @@ public class NetworkRegistry {
                 }
             }
             
-            final PayloadReadingContext readingContext = new PayloadReadingContext(
-                    channel.id(),
-                    channel.chosenVersion()
-            );
-            
-            return buf -> registration.readPayload(buf, readingContext);
+            return registration;
         } else if (protocol.isConfiguration()) {
             final NetworkChannel channel = payloadSetup.configuration().stream()
                     .filter(entry -> entry.id().equals(id))
@@ -244,13 +236,8 @@ public class NetworkRegistry {
                     }
                 }
             }
-            
-            final PayloadReadingContext readingContext = new PayloadReadingContext(
-                    channel.id(),
-                    channel.chosenVersion()
-            );
-            
-            return buf -> registration.readPayload(buf, readingContext);
+           
+            return registration;
         } else {
             //Error case, somebody is trying to send a custom packet during a phase that is not supported.
             LOGGER.error("Received a modded custom payload packet from a client that is not in the configuration or play phase. Not parsing packet.");
@@ -308,7 +295,6 @@ public class NetworkRegistry {
             
             registration.handle(
                     new ConfigurationPayloadContext(
-                            channel.chosenVersion(),
                             configurationPacketListener::send,
                             new ServerPacketHandler(configurationPacketListener),
                             configurationPacketListener::finishCurrentTask,
@@ -341,7 +327,6 @@ public class NetworkRegistry {
             
             registration.handle(
                     new PlayPayloadContext(
-                            channel.chosenVersion(),
                             playPacketListener::send,
                             new ServerPacketHandler(playPacketListener),
                             new EventLoopSynchronizedWorkHandler(playPacketListener.getMainThreadEventLoop()),
@@ -406,7 +391,6 @@ public class NetworkRegistry {
             
             registration.handle(
                     new ConfigurationPayloadContext(
-                            channel.chosenVersion(),
                             configurationPacketListener::send,
                             new ClientPacketHandler(configurationPacketListener),
                             (task) -> {
@@ -441,7 +425,6 @@ public class NetworkRegistry {
             
             registration.handle(
                     new PlayPayloadContext(
-                            channel.chosenVersion(),
                             playPacketListener::send,
                             new ClientPacketHandler(playPacketListener),
                             new EventLoopSynchronizedWorkHandler(playPacketListener.getMainThreadEventLoop()),
@@ -480,10 +463,10 @@ public class NetworkRegistry {
     public void onModdedConnectionDetectedAtServer(ServerConfigurationPacketListener sender, Set<ModdedNetworkQueryComponent> configuration, Set<ModdedNetworkQueryComponent> play) {
         final NegotiationResult configurationNegotiationResult = NetworkComponentNegotiator.negotiate(
                 knownConfigurationRegistrations.entrySet().stream()
-                        .map(entry -> new NegotiableNetworkComponent(entry.getKey(), entry.getValue().version(), entry.getValue().maxVersion(), entry.getValue().minVersion(), entry.getValue().flow(), entry.getValue().optional()))
+                        .map(entry -> new NegotiableNetworkComponent(entry.getKey(), entry.getValue().version(), entry.getValue().flow(), entry.getValue().optional()))
                         .toList(),
                 configuration.stream()
-                        .map(entry -> new NegotiableNetworkComponent(entry.id(), entry.version(), entry.min(), entry.max(), entry.flow(), entry.optional()))
+                        .map(entry -> new NegotiableNetworkComponent(entry.id(), entry.version(), entry.flow(), entry.optional()))
                         .toList()
         );
         
@@ -503,10 +486,10 @@ public class NetworkRegistry {
         
         final NegotiationResult playNegotiationResult = NetworkComponentNegotiator.negotiate(
                 knownPlayRegistrations.entrySet().stream()
-                        .map(entry -> new NegotiableNetworkComponent(entry.getKey(), entry.getValue().version(), entry.getValue().maxVersion(), entry.getValue().minVersion(), entry.getValue().flow(), entry.getValue().optional()))
+                        .map(entry -> new NegotiableNetworkComponent(entry.getKey(), entry.getValue().version(), entry.getValue().flow(), entry.getValue().optional()))
                         .toList(),
                 play.stream()
-                        .map(entry -> new NegotiableNetworkComponent(entry.id(), entry.version(), entry.min(), entry.max(), entry.flow(), entry.optional()))
+                        .map(entry -> new NegotiableNetworkComponent(entry.id(), entry.version(), entry.flow(), entry.optional()))
                         .toList()
         );
         
@@ -549,7 +532,7 @@ public class NetworkRegistry {
         
         final NegotiationResult configurationNegotiationResult = NetworkComponentNegotiator.negotiate(
                 knownConfigurationRegistrations.entrySet().stream()
-                        .map(entry -> new NegotiableNetworkComponent(entry.getKey(), entry.getValue().version(), entry.getValue().maxVersion(), entry.getValue().minVersion(), entry.getValue().flow(), entry.getValue().optional()))
+                        .map(entry -> new NegotiableNetworkComponent(entry.getKey(), entry.getValue().version(), entry.getValue().flow(), entry.getValue().optional()))
                         .toList(),
                 List.of()
         );
@@ -567,7 +550,7 @@ public class NetworkRegistry {
         
         final NegotiationResult playNegotiationResult = NetworkComponentNegotiator.negotiate(
                 knownPlayRegistrations.entrySet().stream()
-                        .map(entry -> new NegotiableNetworkComponent(entry.getKey(), entry.getValue().version(), entry.getValue().maxVersion(), entry.getValue().minVersion(), entry.getValue().flow(), entry.getValue().optional()))
+                        .map(entry -> new NegotiableNetworkComponent(entry.getKey(), entry.getValue().version(), entry.getValue().flow(), entry.getValue().optional()))
                         .toList(),
                 List.of()
         );
@@ -716,10 +699,10 @@ public class NetworkRegistry {
     public void onNetworkQuery(ClientConfigurationPacketListener listener) {
         final ModdedNetworkQueryPayload payload = new ModdedNetworkQueryPayload(
                 knownConfigurationRegistrations.entrySet().stream()
-                        .map(entry -> new ModdedNetworkQueryComponent(entry.getKey(), entry.getValue().version(), entry.getValue().maxVersion(), entry.getValue().minVersion(), entry.getValue().flow(), entry.getValue().optional()))
+                        .map(entry -> new ModdedNetworkQueryComponent(entry.getKey(), entry.getValue().version(), entry.getValue().flow(), entry.getValue().optional()))
                         .collect(Collectors.toSet()),
                 knownPlayRegistrations.entrySet().stream()
-                        .map(entry -> new ModdedNetworkQueryComponent(entry.getKey(), entry.getValue().version(), entry.getValue().maxVersion(), entry.getValue().minVersion(), entry.getValue().flow(), entry.getValue().optional()))
+                        .map(entry -> new ModdedNetworkQueryComponent(entry.getKey(), entry.getValue().version(), entry.getValue().flow(), entry.getValue().optional()))
                         .collect(Collectors.toSet())
         );
         
@@ -775,7 +758,7 @@ public class NetworkRegistry {
         final NegotiationResult configurationNegotiationResult = NetworkComponentNegotiator.negotiate(
                 List.of(),
                 knownConfigurationRegistrations.entrySet().stream()
-                        .map(entry -> new NegotiableNetworkComponent(entry.getKey(), entry.getValue().version(), entry.getValue().maxVersion(), entry.getValue().minVersion(), entry.getValue().flow(), entry.getValue().optional()))
+                        .map(entry -> new NegotiableNetworkComponent(entry.getKey(), entry.getValue().version(), entry.getValue().flow(), entry.getValue().optional()))
                         .toList()
         );
         
@@ -793,7 +776,7 @@ public class NetworkRegistry {
         final NegotiationResult playNegotiationResult = NetworkComponentNegotiator.negotiate(
                 List.of(),
                 knownPlayRegistrations.entrySet().stream()
-                        .map(entry -> new NegotiableNetworkComponent(entry.getKey(), entry.getValue().version(), entry.getValue().maxVersion(), entry.getValue().minVersion(), entry.getValue().flow(), entry.getValue().optional()))
+                        .map(entry -> new NegotiableNetworkComponent(entry.getKey(), entry.getValue().version(), entry.getValue().flow(), entry.getValue().optional()))
                         .toList()
         );
         
@@ -850,7 +833,12 @@ public class NetworkRegistry {
         
         @Override
         public void handle(Packet<?> packet) {
-            resolvePacketGenerics(packet, listener);
+            resolvePacketGenerics(packet, listener());
+        }
+        
+        @Override
+        public void disconnect(Component reason) {
+            listener().disconnect(reason);
         }
         
         private static <T extends PacketListener> void resolvePacketGenerics(Packet<T> packet, ServerCommonPacketListener listener) {
@@ -868,7 +856,12 @@ public class NetworkRegistry {
         
         @Override
         public void handle(Packet<?> packet) {
-            resolvePacketGenerics(packet, listener);
+            resolvePacketGenerics(packet, listener());
+        }
+        
+        @Override
+        public void disconnect(Component reason) {
+            listener().getConnection().disconnect(reason);
         }
         
         private static <T extends PacketListener> void resolvePacketGenerics(Packet<T> packet, ClientCommonPacketListener listener) {

@@ -20,7 +20,7 @@ class ModListCommand {
                 .executes(ctx -> {
                     ctx.getSource().sendSuccess(() -> Component.translatable("commands.neoforge.mods.list",
                             ModList.get().applyForEachModFile(modFile ->
-                    // locator - filename : firstmod (preferredVersion) - numberofmods\n
+                    // locator - filename : firstmod (version) - numberofmods\n
                     String.format(Locale.ROOT, "%s %s : %s (%s) - %d",
                             modFile.getProvider().name().replace(' ', '_'),
                             modFile.getFileName(),

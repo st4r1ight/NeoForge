@@ -49,7 +49,7 @@ public interface IItemStackExtension extends ICapabilitySerializable<CompoundTag
     }
 
     /**
-     * ItemStack sensitive preferredVersion of {@link Item#getCraftingRemainingItem()}.
+     * ItemStack sensitive version of {@link Item#getCraftingRemainingItem()}.
      * Returns a full ItemStack instance of the result.
      *
      * @return The resulting ItemStack
@@ -59,7 +59,7 @@ public interface IItemStackExtension extends ICapabilitySerializable<CompoundTag
     }
 
     /**
-     * ItemStack sensitive preferredVersion of {@link Item#hasCraftingRemainingItem()}.
+     * ItemStack sensitive version of {@link Item#hasCraftingRemainingItem()}.
      *
      * @return True if this item has a crafting remaining item
      */
@@ -183,7 +183,7 @@ public interface IItemStackExtension extends ICapabilitySerializable<CompoundTag
     }
 
     /**
-     * ItemStack sensitive preferredVersion of {@link Item#getEnchantmentValue()}.
+     * ItemStack sensitive version of {@link Item#getEnchantmentValue()}.
      *
      * @return the enchantment value of this ItemStack
      */

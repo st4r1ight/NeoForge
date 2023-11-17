@@ -4,10 +4,10 @@ import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.PacketFlow;
 
+import java.util.Optional;
 import java.util.OptionalInt;
 
 public record PlayPayloadContext(
-        OptionalInt version,
         IReplyHandler handler,
         IPacketHandler packetHandler,
         ISynchronizedWorkHandler workHandler,

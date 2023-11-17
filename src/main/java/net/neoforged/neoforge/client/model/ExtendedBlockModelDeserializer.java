@@ -31,7 +31,7 @@ import net.neoforged.neoforge.common.util.TransformationHelper;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A preferredVersion of {@link BlockModel.Deserializer} capable of deserializing models with custom loaders, as well as other
+ * A version of {@link BlockModel.Deserializer} capable of deserializing models with custom loaders, as well as other
  * changes introduced to the spec by Forge.
  */
 public class ExtendedBlockModelDeserializer extends BlockModel.Deserializer {

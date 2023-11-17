@@ -18,13 +18,13 @@ public class NeoFormVersion {
     static {
         LOGGER.debug(Logging.CORE, "NeoForm Version package {} from {}", NeoFormVersion.class.getPackage(), NeoFormVersion.class.getClassLoader());
         mcVersion = JarVersionLookupHandler.getSpecificationVersion(NeoFormVersion.class).orElse(FMLLoader.versionInfo().mcVersion());
-        if (mcVersion == null) throw new RuntimeException("Missing MC preferredVersion, cannot continue");
+        if (mcVersion == null) throw new RuntimeException("Missing MC version, cannot continue");
 
         neoFormVersion = JarVersionLookupHandler.getImplementationVersion(NeoFormVersion.class).orElse(FMLLoader.versionInfo().neoFormVersion());
-        if (neoFormVersion == null) throw new RuntimeException("Missing NeoForm preferredVersion, cannot continue");
+        if (neoFormVersion == null) throw new RuntimeException("Missing NeoForm version, cannot continue");
 
-        LOGGER.debug(Logging.CORE, "Found MC preferredVersion information {}", mcVersion);
-        LOGGER.debug(Logging.CORE, "Found NeoForm preferredVersion information {}", neoFormVersion);
+        LOGGER.debug(Logging.CORE, "Found MC version information {}", mcVersion);
+        LOGGER.debug(Logging.CORE, "Found NeoForm version information {}", neoFormVersion);
     }
 
     public static String getMCVersion() {

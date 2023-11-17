@@ -5,16 +5,17 @@
 
 package net.neoforged.neoforge.internal;
 
-import java.util.List;
 import net.neoforged.fml.IModLoadingState;
 import net.neoforged.fml.IModStateProvider;
 import net.neoforged.fml.ModLoadingPhase;
 import net.neoforged.fml.ModLoadingState;
 import net.neoforged.neoforge.common.capabilities.CapabilityManager;
-import net.neoforged.neoforge.network.NetworkRegistry;
+import net.neoforged.neoforge.network.registration.NetworkRegistry;
 import net.neoforged.neoforge.registries.GameData;
 import net.neoforged.neoforge.registries.ObjectHolderRegistry;
 import net.neoforged.neoforge.registries.RegistryManager;
+
+import java.util.List;
 
 public class NeoForgeStatesProvider implements IModStateProvider {
     final ModLoadingState CREATE_REGISTRIES = ModLoadingState.withInline("CREATE_REGISTRIES", "CONSTRUCT", ModLoadingPhase.GATHER, ml -> RegistryManager.postNewRegistryEvent());
@@ -23,7 +24,7 @@ public class NeoForgeStatesProvider implements IModStateProvider {
     final ModLoadingState UNFREEZE = ModLoadingState.withInline("UNFREEZE_DATA", "INJECT_CAPABILITIES", ModLoadingPhase.GATHER, ml -> GameData.unfreezeData());
     final ModLoadingState LOAD_REGISTRIES = ModLoadingState.withInline("LOAD_REGISTRIES", "UNFREEZE_DATA", ModLoadingPhase.GATHER, ml -> GameData.postRegisterEvents());
     final ModLoadingState FREEZE = ModLoadingState.withInline("FREEZE_DATA", "COMPLETE", ModLoadingPhase.COMPLETE, ml -> GameData.freezeData());
-    final ModLoadingState NETLOCK = ModLoadingState.withInline("NETWORK_LOCK", "FREEZE_DATA", ModLoadingPhase.COMPLETE, ml -> NetworkRegistry.lock());
+    final ModLoadingState NETLOCK = ModLoadingState.withInline("NETWORK_LOCK", "FREEZE_DATA", ModLoadingPhase.COMPLETE, ml -> NetworkRegistry.getInstance().setup());
 
     @Override
     public List<IModLoadingState> getAllStates() {

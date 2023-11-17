@@ -8,8 +8,6 @@ import net.minecraft.network.protocol.PacketFlow;
 import java.util.OptionalInt;
 
 public interface IPayloadContext {
-    OptionalInt version();
-    
     IReplyHandler handler();
     
     IPacketHandler packetHandler();

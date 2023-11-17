@@ -5,13 +5,14 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.common.util.Range;
 import org.apache.commons.compress.utils.Lists;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Negotiates the network components between the server and client.
@@ -30,18 +31,9 @@ public class NetworkComponentNegotiator {
      *         <li>For each of the matching channels the following is executed:</li>
      *         <ul>
      *             <li>Check if packet flow directions are set, and if at least one is set match it to the other, by missing or wrong value fail the negotiation.</li>
-     *             <li>If one side has no version range provided, but has a preferred version, then it is checked against the other sides range. If the check fails then it fail.</li>
-     *             <li>If one side has a range, but the other has no version, then negotiation fails.</li>
-     *             <li>If one side has a preferred version, but no range, then the preferred version is interpreted as the sole acceptable range.</li>
-     *             <li>Check if the version ranges overlap, if this is not the case, then return.</li>
+     *             <li>Check if both sides have the same version, or none set.</li>
      *         </ul>
-     *         <li>At this point the channels are considered compatible, and a version is to be selected:</li>
-     *         <ul>
-     *             <li>If the server has a preferred version, and that version is part of the agreed upon range, then that version is selected</li>
-     *             <li>If the client has a preferred version, and that version is part of the agreed upon range, then that version is selected</li>
-     *             <li>If neither the server, nor the client, has a preferred version, and a agreed upon range exists, the highest version is picked.</li>
-     *             <li>If neither the server nor the client has a preferred version, and no agreed upon range exists, then no version is selected.</li>
-     *         </ul>
+     *         <li>At this point the channels are considered compatible, pick the servers version. It does not matter what side is picked since either both have the same version, or no version at all.</li>
      *     </ul>
      * </p>
      * <p>
@@ -116,30 +108,8 @@ public class NetworkComponentNegotiator {
                 continue;
             }
             
-            Optional<Range<Integer>> serverRange = serverComponent.buildVersionRange();
-            Optional<Range<Integer>> clientRange = clientComponent.buildVersionRange();
-            OptionalInt version;
-            if (serverRange.isEmpty() && clientRange.isEmpty()) {
-                //No range available, means also no preferred version available.
-                version = OptionalInt.empty();
-            } else if (serverRange.isEmpty()) {
-                //Should have produced a failure reason above, so this should not happen.
-                throw new IllegalStateException("Server range is empty, but client range is not empty. This should not happen.");
-            } else if (clientRange.isEmpty()) {
-                //Should have produced a failure reason above, so this should not happen.
-                throw new IllegalStateException("Client range is empty, but server range is not empty. This should not happen.");
-            } else {
-                final Range<Integer> overlap = serverRange.get().overlap(clientRange.get());
-                if (serverComponent.preferredVersion().isPresent() && overlap.contains(serverComponent.preferredVersion().getAsInt())) {
-                    version = serverComponent.preferredVersion();
-                } else if (clientComponent.preferredVersion().isPresent() && overlap.contains(clientComponent.preferredVersion().getAsInt())) {
-                    version = clientComponent.preferredVersion();
-                } else {
-                    version = OptionalInt.of(overlap.max());
-                }
-            }
-            
-            result.add(new NegotiatedNetworkComponent(serverComponent.id(), version));
+            //We can take the servers version here. Either both sides have the same version, or both sides have no version.
+            result.add(new NegotiatedNetworkComponent(serverComponent.id(), serverComponent.version()));
         }
         
         if (!failureReasons.isEmpty()) {
@@ -154,11 +124,7 @@ public class NetworkComponentNegotiator {
      * The following rules are followed:
      *         <ul>
      *             <li>Check if packet flow directions are set, and if at least one is set match it to the other, by missing or wrong value fail the negotiation.</li>
-     *             <li>If one side has no version range provided, but has a preferred version, then it is checked against the other sides range.</li>
-     *             <li>If one side has a range, but the other has no version, then negotiation fails.</li>
-     *             <li>If one side has a preferred version, but no range, then the preferred version is interpreted as the sole acceptable range.</li>
-     *             <li>Check if the version ranges overlap, if this is not the case, then return.</li>
-     *             <li>If no side has a preferred version, or a range, then the check succeeds.</li>
+     *             <li>Check if both sides have the same version, or none set.</li>
      *         </ul>
      * </p>
      * <p>
@@ -183,55 +149,20 @@ public class NetworkComponentNegotiator {
             }
         }
         
-        Optional<Range<Integer>> leftRange = left.buildVersionRange();
-        Optional<Range<Integer>> rightRange = right.buildVersionRange();
-        
-        //Perform a left full, right empty check.
-        final Optional<Optional<ComponentNegotiationResult>> leftRightCheck = checkRange(left, right, requestingSide, leftRange, rightRange);
-        if (leftRightCheck.isPresent()) {
-            return leftRightCheck.get();
+        //If either side has no version set, fail
+        if (left.version().isEmpty() && right.version().isPresent()) {
+            return Optional.of(new ComponentNegotiationResult(false, Component.translatable("neoforge.network.negotiation.failure.version.%s.required".formatted(requestingSide), left.id(), right.version().get())));
         }
         
-        //Perform a left empty, right full check.
-        final Optional<Optional<ComponentNegotiationResult>> rightLeftCheck = checkRange(right, left, requestingSide, rightRange, leftRange);
-        if (rightLeftCheck.isPresent()) {
-            return rightLeftCheck.get();
-        }
-        
-        //At this point both sides have a range, and both ranges are not empty.
-        if (leftRange.isPresent() && rightRange.isPresent()) {
-            //Check if the ranges overlap
-            //This also performs the check if two channels only have a preferred version, and no range. In that case the ranges have equal min and max values, and they need to line up.
-            if (leftRange.get().overlaps(rightRange.get())) {
-                //Okay some overlap found so there is a common version that we can support.
-                return Optional.empty();
+        //Check if both sides have the same version, or none set.
+        if (left.version().isPresent() && right.version().isPresent()) {
+            if (!left.version().get().equals(right.version().get())) {
+                return Optional.of(new ComponentNegotiationResult(false, Component.translatable("neoforge.network.negotiation.failure.version.mismatch", left.id(), left.version().get(), right.version().get())));
             }
-            
-            //No overlap found, so negotiation fails.
-            return Optional.of(new ComponentNegotiationResult(false, Component.translatable("neoforge.network.negotiation.failure.range.%s.overlap".formatted(requestingSide), left.id(), leftRange.get(), right.id(), rightRange.get())));
         }
         
         //This happens when both the ranges are empty.
         //In other words, no channel has a range, and no channel has a preferred version.
-        return Optional.empty();
-    }
-    
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    @NotNull
-    private static Optional<Optional<ComponentNegotiationResult>> checkRange(NegotiableNetworkComponent left, NegotiableNetworkComponent right, String requestingSide, Optional<Range<Integer>> leftRange, Optional<Range<Integer>> rightRange) {
-        if (leftRange.isPresent() && rightRange.isEmpty()) {
-            if (right.preferredVersion().isPresent()) {
-                final Range<Integer> leftActiveRange = leftRange.get();
-                if (!leftActiveRange.contains(right.preferredVersion().getAsInt())) {
-                    return Optional.of(Optional.of(new ComponentNegotiationResult(false, Component.translatable("neoforge.network.negotiation.failure.preferredVersion.%s.out_of_range".formatted(requestingSide), left.id(), right.preferredVersion().getAsInt(), leftActiveRange))));
-                }
-                
-                return Optional.of(Optional.empty());
-            }
-            
-            return Optional.of(Optional.of(new ComponentNegotiationResult(false, Component.translatable("neoforge.network.negotiation.failure.preferredVersion.%s.required".formatted(requestingSide), left.id(), leftRange.get().toString()))));
-        }
-        
         return Optional.empty();
     }
     

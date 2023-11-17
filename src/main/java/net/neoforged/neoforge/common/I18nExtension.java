@@ -44,7 +44,7 @@ public class I18nExtension {
         customFactories.put("upper", (name, formatString, locale) -> new CustomReadOnlyFormat((stringBuffer, objectToParse) -> stringBuffer.append(StringUtils.toUpperCase(String.valueOf(objectToParse)))));
         // {0,exc,cls} -> class of exception; {0,exc,msg} -> message from exception
         customFactories.put("exc", (name, formatString, locale) -> new CustomReadOnlyFormat((stringBuffer, objectToParse) -> parseException(formatString, stringBuffer, objectToParse)));
-        // {0,vr} -> transform VersionRange into cleartext string using fml.messages.preferredVersion.restriction.* strings
+        // {0,vr} -> transform VersionRange into cleartext string using fml.messages.version.restriction.* strings
         customFactories.put("vr", (name, formatString, locale) -> new CustomReadOnlyFormat(MavenVersionStringHelper::parseVersionRange));
         // {0,featurebound} -> transform feature bound to cleartext string
         customFactories.put("featurebound", (name, formatString, locale) -> new CustomReadOnlyFormat(MavenVersionStringHelper::parseFeatureBoundValue));

@@ -98,7 +98,7 @@ public class ModMismatchDisconnectedScreen extends Screen {
             }
             List<Row> rows = new ArrayList<>();
             if (!mismatchedChannelData.isEmpty()) {
-                //This table section contains the mod name and both mod versions of each mod that has a mismatching client and server preferredVersion
+                //This table section contains the mod name and both mod versions of each mod that has a mismatching client and server version
                 rows.add(new Row(Component.translatable("fml.modmismatchscreen.table.channelname"), Component.translatable("fml.modmismatchscreen.table.reason")));
                 int i = 0;
                 for (Map.Entry<ResourceLocation, Component> modData : mismatchedChannelData.entrySet()) {
@@ -117,7 +117,7 @@ public class ModMismatchDisconnectedScreen extends Screen {
         }
         
         /**
-         * Splits the raw name and preferredVersion strings, making them use multiple lines if needed, to fit within the table dimensions.
+         * Splits the raw name and version strings, making them use multiple lines if needed, to fit within the table dimensions.
          * The style assigned to the name element is then applied to the entire content row.
          *
          * @param name     The first element of the content row, usually representing a table section header or the name of a mod entry
@@ -127,7 +127,7 @@ public class ModMismatchDisconnectedScreen extends Screen {
         private List<Pair<FormattedCharSequence, FormattedCharSequence>> splitLineToWidth(MutableComponent name, MutableComponent reason) {
             Style style = name.getStyle();
             int versionColumns = 1;
-            int adaptedNameWidth = nameWidth + versionWidth * (2 - versionColumns) - 4; //the name width may be expanded when the preferredVersion column string is missing
+            int adaptedNameWidth = nameWidth + versionWidth * (2 - versionColumns) - 4; //the name width may be expanded when the version column string is missing
             List<FormattedCharSequence> nameLines = font.split(name, adaptedNameWidth);
             List<FormattedCharSequence> reasonLines = font.split(reason.setStyle(style), versionWidth - 4);
             List<Pair<FormattedCharSequence, FormattedCharSequence>> splitLines = new ArrayList<>();
@@ -184,7 +184,7 @@ public class ModMismatchDisconnectedScreen extends Screen {
                 FormattedCharSequence reaons = line.getRight();
                 //Since font#draw does not respect the color of the given component, we have to read it out here and then use it as the last parameter
                 int color = Optional.ofNullable(font.getSplitter().componentStyleAtWidth(name, 0)).map(Style::getColor).map(TextColor::getValue).orElse(0xFFFFFF);
-                //Only indent the given name if a preferredVersion string is present. This makes it easier to distinguish table section headers and mod entries
+                //Only indent the given name if a version string is present. This makes it easier to distinguish table section headers and mod entries
                 int nameLeft = left + border + (reaons == null ? 0 : nameIndent);
                 guiGraphics.drawString(font, name, nameLeft, relativeY + i * 12, color, false);
                 if (reaons != null) {
@@ -209,7 +209,7 @@ public class ModMismatchDisconnectedScreen extends Screen {
                 double relativeY = y - this.top + this.scrollDistance - border;
                 int slotIndex = (int) (relativeY + (border / 2)) / 12;
                 if (slotIndex < contentSize) {
-                    //The relative x needs to take the potentially missing indent of the row into account. It does that by checking if the line has a preferredVersion associated to it
+                    //The relative x needs to take the potentially missing indent of the row into account. It does that by checking if the line has a version associated to it
                     double relativeX = x - left - border - (lineTable.get(slotIndex).getRight() == null ? 0 : nameIndent);
                     if (relativeX >= 0)
                         return font.getSplitter().componentStyleAtWidth(lineTable.get(slotIndex).getLeft(), (int) relativeX);

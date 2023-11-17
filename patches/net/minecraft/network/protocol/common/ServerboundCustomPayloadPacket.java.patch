@@ -40,3 +40,23 @@
     private static DiscardedPayload readUnknownPayload(ResourceLocation p_294973_, FriendlyByteBuf p_296037_) {
        int i = p_296037_.readableBytes();
        if (i >= 0 && i <= 32767) {
+@@ -35,14 +38,15 @@
+          throw new IllegalArgumentException("Payload may not be larger than 32767 bytes");
+       }
+    }
+-
++   
+    @Override
+-   public void write(FriendlyByteBuf p_295621_) {
+-      p_295621_.writeResourceLocation(this.payload.id());
+-      this.payload.write(p_295621_);
++   public void write(FriendlyByteBuf p_295630_) {
++      p_295630_.writeResourceLocation(this.payload.id());
++      this.payload.write(p_295630_);
+    }
+ 
+    public void handle(ServerCommonPacketListener p_295862_) {
+       p_295862_.handleCustomPayload(this);
+    }
++   
+ }

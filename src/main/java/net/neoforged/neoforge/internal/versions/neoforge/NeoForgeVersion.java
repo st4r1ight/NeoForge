@@ -26,7 +26,7 @@ public class NeoForgeVersion {
     static {
         LOGGER.debug(Logging.CORE, "NeoForge Version package {} from {}", NeoForgeVersion.class.getPackage(), NeoForgeVersion.class.getClassLoader());
         String vers = JarVersionLookupHandler.getImplementationVersion(NeoForgeVersion.class).orElse(FMLLoader.versionInfo().neoForgeVersion());
-        if (vers == null) throw new RuntimeException("Missing NeoForge preferredVersion, cannot continue");
+        if (vers == null) throw new RuntimeException("Missing NeoForge version, cannot continue");
         String spec = JarVersionLookupHandler.getSpecificationVersion(NeoForgeVersion.class).orElse(System.getenv("NEOFORGE_SPEC"));
         if (spec == null) throw new RuntimeException("Missing NeoForge spec, cannot continue");
         String group = JarVersionLookupHandler.getImplementationTitle(NeoForgeVersion.class).orElse("net.neoforged");
@@ -36,7 +36,7 @@ public class NeoForgeVersion {
         neoForgeVersion = vers;
         neoForgeSpec = spec;
         neoForgeGroup = group;
-        LOGGER.debug(Logging.CORE, "Found NeoForge preferredVersion {}", neoForgeVersion);
+        LOGGER.debug(Logging.CORE, "Found NeoForge version {}", neoForgeVersion);
         LOGGER.debug(Logging.CORE, "Found NeoForge spec {}", neoForgeSpec);
         LOGGER.debug(Logging.CORE, "Found NeoForge group {}", neoForgeGroup);
     }

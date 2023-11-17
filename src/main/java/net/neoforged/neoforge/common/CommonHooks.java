@@ -1151,24 +1151,24 @@ public class CommonHooks {
             final var mismatchEvent = new ModMismatchEvent(levelDirectory, mismatchedVersions, missingVersions);
             ModLoader.get().postEvent(mismatchEvent);
 
-            StringBuilder resolved = new StringBuilder("The following mods have preferredVersion differences that were marked resolved:");
-            StringBuilder unresolved = new StringBuilder("The following mods have preferredVersion differences that were not resolved:");
+            StringBuilder resolved = new StringBuilder("The following mods have version differences that were marked resolved:");
+            StringBuilder unresolved = new StringBuilder("The following mods have version differences that were not resolved:");
 
-            // For mods that were marked resolved, log the preferredVersion resolution and the mod that resolved the mismatch
+            // For mods that were marked resolved, log the version resolution and the mod that resolved the mismatch
             mismatchEvent.getResolved().forEachOrdered((res) -> {
                 final var modid = res.modid();
                 final var diff = res.versionDifference();
                 if (res.wasSelfResolved()) {
                     resolved.append(System.lineSeparator())
                             .append(diff.isMissing()
-                                    ? "%s (preferredVersion %s -> MISSING, self-resolved)".formatted(modid, diff.oldVersion())
-                                    : "%s (preferredVersion %s -> %s, self-resolved)".formatted(modid, diff.oldVersion(), diff.newVersion()));
+                                    ? "%s (version %s -> MISSING, self-resolved)".formatted(modid, diff.oldVersion())
+                                    : "%s (version %s -> %s, self-resolved)".formatted(modid, diff.oldVersion(), diff.newVersion()));
                 } else {
                     final var resolver = res.resolver().getModId();
                     resolved.append(System.lineSeparator())
                             .append(diff.isMissing()
-                                    ? "%s (preferredVersion %s -> MISSING, resolved by %s)".formatted(modid, diff.oldVersion(), resolver)
-                                    : "%s (preferredVersion %s -> %s, resolved by %s)".formatted(modid, diff.oldVersion(), diff.newVersion(), resolver));
+                                    ? "%s (version %s -> MISSING, resolved by %s)".formatted(modid, diff.oldVersion(), resolver)
+                                    : "%s (version %s -> %s, resolved by %s)".formatted(modid, diff.oldVersion(), diff.newVersion(), resolver));
                 }
             });
 
@@ -1178,8 +1178,8 @@ public class CommonHooks {
                 final var diff = unres.versionDifference();
                 unresolved.append(System.lineSeparator())
                         .append(diff.isMissing()
-                                ? "%s (preferredVersion %s -> MISSING)".formatted(modid, diff.oldVersion())
-                                : "%s (preferredVersion %s -> %s)".formatted(modid, diff.oldVersion(), diff.newVersion()));
+                                ? "%s (version %s -> MISSING)".formatted(modid, diff.oldVersion())
+                                : "%s (version %s -> %s)".formatted(modid, diff.oldVersion(), diff.newVersion()));
             });
 
             if (mismatchEvent.anyResolved()) {

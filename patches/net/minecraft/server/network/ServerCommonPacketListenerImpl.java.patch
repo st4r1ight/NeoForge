@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
-@@ -12,13 +12,8 @@
+@@ -12,16 +12,12 @@
  import net.minecraft.network.chat.Component;
  import net.minecraft.network.protocol.Packet;
  import net.minecraft.network.protocol.PacketUtils;
@@ -16,7 +16,11 @@
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.server.level.ClientInformation;
  import net.minecraft.util.VisibleForDebug;
-@@ -65,7 +60,7 @@
++import net.minecraft.util.thread.ReentrantBlockableEventLoop;
+ import org.slf4j.Logger;
+ 
+ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPacketListener {
+@@ -65,7 +61,7 @@
     @Override
     public void handlePong(ServerboundPongPacket p_295142_) {
     }
@@ -25,7 +29,7 @@
     @Override
     public void handleCustomPayload(ServerboundCustomPayloadPacket p_294276_) {
     }
-@@ -108,8 +103,17 @@
+@@ -108,8 +104,17 @@
     public void send(Packet<?> p_294278_) {
        this.send(p_294278_, null);
     }
@@ -44,7 +48,7 @@
        boolean flag = !this.suspendFlushingOnServerThread || !this.server.isSameThread();
  
        try {
-@@ -121,7 +125,13 @@
+@@ -121,7 +126,13 @@
           throw new ReportedException(crashreport);
        }
     }
@@ -59,7 +63,7 @@
     public void disconnect(Component p_294116_) {
        this.connection.send(new ClientboundDisconnectPacket(p_294116_), PacketSendListener.thenRun(() -> this.connection.disconnect(p_294116_)));
        this.connection.setReadOnly();
-@@ -143,7 +153,17 @@
+@@ -143,7 +154,17 @@
        return this.latency;
     }
  
@@ -75,7 +79,7 @@
 +   }
 +   
 +   @Override
-+   public MinecraftServer getServer() {
++   public ReentrantBlockableEventLoop<?> getMainThreadEventLoop() {
 +      return server;
     }
  }

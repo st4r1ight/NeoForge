@@ -18,7 +18,7 @@ public interface IEnchantmentExtension {
     }
 
     /**
-     * ItemStack aware preferredVersion of {@link Enchantment#getDamageBonus(int, MobType)}
+     * ItemStack aware version of {@link Enchantment#getDamageBonus(int, MobType)}
      * 
      * @param level         the level of the enchantment
      * @param mobType       the mob type being attacked

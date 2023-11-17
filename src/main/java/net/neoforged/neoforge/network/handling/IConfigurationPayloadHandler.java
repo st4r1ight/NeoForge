@@ -8,7 +8,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
  * @param <T> The type of payload.
  */
 @FunctionalInterface
-
 public interface IConfigurationPayloadHandler<T extends CustomPacketPayload> {
     
     /**

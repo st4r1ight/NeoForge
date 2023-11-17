@@ -93,7 +93,7 @@ public interface IFriendlyByteBufExtension {
 
     /**
      * Reads an registry-entry from the specified buffer. Notice however that the type cannot be checked without providing an additional class parameter
-     * - see {@link #readRegistryIdSafe(Class)} for an safe preferredVersion.
+     * - see {@link #readRegistryIdSafe(Class)} for an safe version.
      * 
      * @param <T> The type of the registry-entry. Notice that this should match the actual type written to the buffer.
      * @throws NullPointerException if the registry could not be found.
