@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/network/ConfigurationTask.java
 +++ b/net/minecraft/server/network/ConfigurationTask.java
-@@ -2,6 +2,7 @@
+@@ -2,6 +_,7 @@
  
  import java.util.function.Consumer;
  import net.minecraft.network.protocol.Packet;
@@ -8,7 +8,7 @@
  
  public interface ConfigurationTask {
     void start(Consumer<Packet<?>> p_294184_);
-@@ -9,6 +10,10 @@
+@@ -9,6 +_,10 @@
     ConfigurationTask.Type type();
  
     public static record Type(String id) {

@@ -1,6 +1,6 @@
 --- a/net/minecraft/network/protocol/login/ClientboundCustomQueryPacket.java
 +++ b/net/minecraft/network/protocol/login/ClientboundCustomQueryPacket.java
-@@ -2,6 +2,7 @@
+@@ -2,6 +_,7 @@
  
  import net.minecraft.network.FriendlyByteBuf;
  import net.minecraft.network.protocol.Packet;
@@ -8,7 +8,7 @@
  import net.minecraft.network.protocol.login.custom.CustomQueryPayload;
  import net.minecraft.network.protocol.login.custom.DiscardedQueryPayload;
  import net.minecraft.resources.ResourceLocation;
-@@ -12,11 +13,11 @@
+@@ -12,11 +_,11 @@
     public ClientboundCustomQueryPacket(FriendlyByteBuf p_179810_) {
        this(p_179810_.readVarInt(), readPayload(p_179810_.readResourceLocation(), p_179810_));
     }

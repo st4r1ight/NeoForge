@@ -1,6 +1,6 @@
 --- a/net/minecraft/network/protocol/handshake/ClientIntentionPacket.java
 +++ b/net/minecraft/network/protocol/handshake/ClientIntentionPacket.java
-@@ -7,16 +7,8 @@
+@@ -7,16 +_,8 @@
  public record ClientIntentionPacket(int protocolVersion, String hostName, int port, ClientIntent intention) implements Packet<ServerHandshakePacketListener> {
     private static final int MAX_HOST_LENGTH = 255;
  

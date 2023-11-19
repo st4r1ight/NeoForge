@@ -1,0 +1,39 @@
+--- a/net/minecraft/network/protocol/game/ClientboundAddEntityPacket.java
++++ b/net/minecraft/network/protocol/game/ClientboundAddEntityPacket.java
+@@ -3,6 +_,7 @@
+ import java.util.UUID;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.registries.BuiltInRegistries;
++import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.network.FriendlyByteBuf;
+ import net.minecraft.network.protocol.Packet;
+ import net.minecraft.util.Mth;
+@@ -64,17 +_,17 @@
+    }
+ 
+    public ClientboundAddEntityPacket(
+-      int p_237546_,
+-      UUID p_237547_,
+-      double p_237548_,
+-      double p_237549_,
+-      double p_237550_,
+-      float p_237551_,
+-      float p_237552_,
+-      EntityType<?> p_237553_,
+-      int p_237554_,
+-      Vec3 p_237555_,
+-      double p_237556_
++           int p_237546_,
++           UUID p_237547_,
++           double p_237548_,
++           double p_237549_,
++           double p_237550_,
++           float p_237551_,
++           float p_237552_,
++           EntityType<?> p_237553_,
++           int p_237554_,
++           Vec3 p_237555_,
++           double p_237556_
+    ) {
+       this.id = p_237546_;
+       this.uuid = p_237547_;

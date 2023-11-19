@@ -1,6 +1,6 @@
 --- a/net/minecraft/network/protocol/login/ServerboundCustomQueryAnswerPacket.java
 +++ b/net/minecraft/network/protocol/login/ServerboundCustomQueryAnswerPacket.java
-@@ -8,16 +8,16 @@
+@@ -8,16 +_,16 @@
  
  public record ServerboundCustomQueryAnswerPacket(int transactionId, @Nullable CustomQueryAnswerPayload payload) implements Packet<ServerLoginPacketListener> {
     private static final int MAX_PAYLOAD_SIZE = 1048576;
@@ -20,7 +20,7 @@
     private static CustomQueryAnswerPayload readUnknownPayload(FriendlyByteBuf p_294928_) {
        int i = p_294928_.readableBytes();
        if (i >= 0 && i <= 1048576) {
-@@ -27,13 +27,13 @@
+@@ -27,13 +_,13 @@
           throw new IllegalArgumentException("Payload may not be larger than 1048576 bytes");
        }
     }

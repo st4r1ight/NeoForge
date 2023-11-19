@@ -1,6 +1,6 @@
 --- a/net/minecraft/network/Connection.java
 +++ b/net/minecraft/network/Connection.java
-@@ -110,6 +110,7 @@
+@@ -110,6 +_,7 @@
        if (this.delayedDisconnect != null) {
           this.disconnect(this.delayedDisconnect);
        }
@@ -8,7 +8,7 @@
     }
  
     public static void setInitialProtocolAttributes(Channel p_294962_) {
-@@ -120,6 +121,7 @@
+@@ -120,6 +_,7 @@
     @Override
     public void channelInactive(ChannelHandlerContext p_129527_) {
        this.disconnect(Component.translatable("disconnect.endOfStream"));
@@ -16,7 +16,7 @@
     }
  
     @Override
-@@ -371,7 +373,7 @@
+@@ -371,7 +_,7 @@
        if (this.address == null) {
           return "local";
        } else {
@@ -25,7 +25,7 @@
        }
     }
  
-@@ -410,6 +412,7 @@
+@@ -410,6 +_,7 @@
     }
  
     public static ChannelFuture connect(InetSocketAddress p_290034_, boolean p_290035_, final Connection p_290031_) {
@@ -33,7 +33,7 @@
        Class<? extends SocketChannel> oclass;
        EventLoopGroup eventloopgroup;
        if (Epoll.isAvailable() && p_290035_) {
-@@ -466,6 +469,7 @@
+@@ -466,6 +_,7 @@
  
     public static Connection connectToLocalServer(SocketAddress p_129494_) {
        final Connection connection = new Connection(PacketFlow.CLIENTBOUND);
@@ -41,7 +41,7 @@
        new Bootstrap().group(LOCAL_WORKER_GROUP.get()).handler(new ChannelInitializer<Channel>() {
           @Override
           protected void initChannel(Channel p_129557_) {
-@@ -558,6 +562,14 @@
+@@ -558,6 +_,14 @@
  
     public float getAverageSentPackets() {
        return this.averageSentPackets;

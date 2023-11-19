@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/network/CommonListenerCookie.java
 +++ b/net/minecraft/server/network/CommonListenerCookie.java
-@@ -3,8 +3,8 @@
+@@ -3,8 +_,8 @@
  import com.mojang.authlib.GameProfile;
  import net.minecraft.server.level.ClientInformation;
  

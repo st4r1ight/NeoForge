@@ -1,6 +1,6 @@
 --- a/net/minecraft/network/PacketDecoder.java
 +++ b/net/minecraft/network/PacketDecoder.java
-@@ -28,7 +28,7 @@
+@@ -28,7 +_,7 @@
           ConnectionProtocol.CodecData<?> codecdata = attribute.get();
           FriendlyByteBuf friendlybytebuf = new FriendlyByteBuf(p_130536_);
           int j = friendlybytebuf.readVarInt();

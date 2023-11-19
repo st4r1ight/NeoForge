@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/multiplayer/ClientPacketListener.java
 +++ b/net/minecraft/client/multiplayer/ClientPacketListener.java
-@@ -334,6 +334,7 @@
+@@ -334,6 +_,7 @@
     private MessageSignatureCache messageSignatureCache = MessageSignatureCache.createDefault();
     private final ChunkBatchSizeCalculator chunkBatchSizeCalculator = new ChunkBatchSizeCalculator();
     private final PingDebugMonitor pingDebugMonitor;
@@ -8,7 +8,7 @@
     private boolean seenInsecureChatWarning = false;
     private volatile boolean closed;
  
-@@ -345,6 +346,7 @@
+@@ -345,6 +_,7 @@
        this.advancements = new ClientAdvancements(p_253924_, this.telemetryManager);
        this.suggestionsProvider = new ClientSuggestionProvider(this, p_253924_);
        this.pingDebugMonitor = new PingDebugMonitor(this, p_253924_.getDebugOverlay().getPingLogger());
@@ -16,7 +16,7 @@
     }
  
     public ClientSuggestionProvider getSuggestionsProvider() {
-@@ -403,6 +405,7 @@
+@@ -403,6 +_,7 @@
  
        this.minecraft.debugRenderer.clear();
        this.minecraft.player.resetPos();
@@ -24,7 +24,7 @@
        this.minecraft.player.setId(p_105030_.playerId());
        this.level.addEntity(this.minecraft.player);
        this.minecraft.player.input = new KeyboardInput(this.minecraft.options);
-@@ -764,6 +767,7 @@
+@@ -764,6 +_,7 @@
                    this.telemetryManager,
                    this.registryAccess,
                    this.enabledFeatures,
@@ -32,7 +32,7 @@
                    this.serverBrand,
                    this.serverData,
                    this.postDisconnectScreen
-@@ -1110,7 +1114,9 @@
+@@ -1110,7 +_,9 @@
           localplayer1.getAttributes().assignValues(localplayer.getAttributes());
        }
  
@@ -42,7 +42,7 @@
        this.level.addEntity(localplayer1);
        localplayer1.setYRot(-180.0F);
        localplayer1.input = new KeyboardInput(this.minecraft.options);
-@@ -1230,10 +1236,7 @@
+@@ -1230,10 +_,7 @@
        PacketUtils.ensureRunningOnSameThread(p_104976_, this, this.minecraft);
        BlockPos blockpos = p_104976_.getPos();
        this.minecraft.level.getBlockEntity(blockpos, p_104976_.getType()).ifPresent(p_205557_ -> {
@@ -54,7 +54,7 @@
  
           if (p_205557_ instanceof CommandBlockEntity && this.minecraft.screen instanceof CommandBlockEditScreen) {
              ((CommandBlockEditScreen)this.minecraft.screen).updateGui();
-@@ -1395,7 +1398,9 @@
+@@ -1395,7 +_,9 @@
     @Override
     public void handleCommands(ClientboundCommandsPacket p_104990_) {
        PacketUtils.ensureRunningOnSameThread(p_104990_, this, this.minecraft);
@@ -65,7 +65,7 @@
     }
  
     @Override
-@@ -1417,6 +1422,7 @@
+@@ -1417,6 +_,7 @@
        ClientRecipeBook clientrecipebook = this.minecraft.player.getRecipeBook();
        clientrecipebook.setupCollections(this.recipeManager.getRecipes(), this.minecraft.level.registryAccess());
        this.minecraft.populateSearchTree(SearchRegistry.RECIPE_COLLECTIONS, clientrecipebook.getCollections());
@@ -73,7 +73,7 @@
     }
  
     @Override
-@@ -1523,7 +1529,8 @@
+@@ -1523,7 +_,8 @@
           Blocks.rebuildCache();
        }
  
@@ -83,7 +83,7 @@
     }
  
     @Override
-@@ -1855,7 +1862,7 @@
+@@ -1855,7 +_,7 @@
     }
  
     @Override
@@ -92,7 +92,7 @@
        if (p_295851_ instanceof PathfindingDebugPayload pathfindingdebugpayload) {
           this.minecraft
              .debugRenderer
-@@ -1922,10 +1929,16 @@
+@@ -1922,10 +_,16 @@
              .gameEventListenerRenderer
              .trackListener(gameeventlistenerdebugpayload.listenerPos(), gameeventlistenerdebugpayload.listenerRange());
        } else {
@@ -110,7 +110,7 @@
     private void handleUnknownCustomPayload(CustomPacketPayload p_294389_) {
        LOGGER.warn("Unknown custom packet payload: {}", p_294389_.id());
     }
-@@ -2302,6 +2315,8 @@
+@@ -2302,6 +_,8 @@
     }
  
     public void sendChat(String p_249888_) {
@@ -119,7 +119,7 @@
        Instant instant = Instant.now();
        long i = Crypt.SaltSupplier.getLong();
        LastSeenMessagesTracker.Update lastseenmessagestracker$update = this.lastSeenMessages.generateAndApplyUpdate();
-@@ -2311,6 +2326,7 @@
+@@ -2311,6 +_,7 @@
     }
  
     public void sendCommand(String p_250092_) {

@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -60,6 +60,7 @@
+@@ -60,6 +_,7 @@
  import net.minecraft.network.protocol.Packet;
  import net.minecraft.network.protocol.PacketUtils;
  import net.minecraft.network.protocol.common.ServerboundClientInformationPacket;
@@ -8,7 +8,7 @@
  import net.minecraft.network.protocol.game.ClientboundBlockChangedAckPacket;
  import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
  import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
-@@ -186,6 +187,12 @@
+@@ -186,6 +_,12 @@
     ServerPlayerConnection,
     TickablePacketListener {
     static final Logger LOGGER = LogUtils.getLogger();
@@ -21,7 +21,7 @@
     public static final double MAX_INTERACTION_DISTANCE = Mth.square(6.0);
     private static final int NO_BLOCK_UPDATES_TO_ACK = -1;
     private static final int TRACKED_MESSAGE_DISCONNECT_THRESHOLD = 4096;
-@@ -228,6 +235,8 @@
+@@ -228,6 +_,8 @@
     private final MessageSignatureCache messageSignatureCache = MessageSignatureCache.createDefault();
     private final FutureChain chatMessageChain;
     private boolean waitingForSwitchToConfig;
@@ -30,7 +30,7 @@
  
     public ServerGamePacketListenerImpl(MinecraftServer p_9770_, Connection p_9771_, ServerPlayer p_9772_, CommonListenerCookie p_301978_) {
        super(p_9770_, p_9771_, p_301978_);
-@@ -240,6 +249,7 @@
+@@ -240,6 +_,7 @@
           ? SignedMessageChain.Decoder.REJECT_ALL
           : SignedMessageChain.Decoder.unsigned(p_9772_.getUUID());
        this.chatMessageChain = new FutureChain(p_9770_);
@@ -38,7 +38,7 @@
     }
  
     @Override
-@@ -426,9 +436,11 @@
+@@ -426,9 +_,11 @@
              }
  
              entity.absMoveTo(d3, d4, d5, f, f1);
@@ -50,7 +50,7 @@
                 this.send(new ClientboundMoveVehiclePacket(entity));
                 return;
              }
-@@ -1004,8 +1016,10 @@
+@@ -1004,8 +_,10 @@
           case SWAP_ITEM_WITH_OFFHAND:
              if (!this.player.isSpectator()) {
                 ItemStack itemstack = this.player.getItemInHand(InteractionHand.OFF_HAND);
@@ -63,7 +63,7 @@
                 this.player.stopUsingItem();
              }
  
-@@ -1033,7 +1047,7 @@
+@@ -1033,7 +_,7 @@
                 .handleBlockBreakAction(
                    blockpos, serverboundplayeractionpacket$action, p_9889_.getDirection(), this.player.level().getMaxBuildHeight(), p_9889_.getSequence()
                 );
@@ -72,7 +72,7 @@
              return;
           default:
              throw new IllegalArgumentException("Invalid player action");
-@@ -1052,7 +1066,7 @@
+@@ -1052,7 +_,7 @@
     @Override
     public void handleUseItemOn(ServerboundUseItemOnPacket p_9930_) {
        PacketUtils.ensureRunningOnSameThread(p_9930_, this, this.player.serverLevel());
@@ -81,7 +81,7 @@
        ServerLevel serverlevel = this.player.serverLevel();
        InteractionHand interactionhand = p_9930_.getHand();
        ItemStack itemstack = this.player.getItemInHand(interactionhand);
-@@ -1061,7 +1075,7 @@
+@@ -1061,7 +_,7 @@
           Vec3 vec3 = blockhitresult.getLocation();
           BlockPos blockpos = blockhitresult.getBlockPos();
           Vec3 vec31 = Vec3.atCenterOf(blockpos);
@@ -90,7 +90,7 @@
              Vec3 vec32 = vec3.subtract(vec31);
              double d0 = 1.0000001;
              if (Math.abs(vec32.x()) < 1.0000001 && Math.abs(vec32.y()) < 1.0000001 && Math.abs(vec32.z()) < 1.0000001) {
-@@ -1070,17 +1084,17 @@
+@@ -1070,17 +_,17 @@
                 int i = this.player.level().getMaxBuildHeight();
                 if (blockpos.getY() < i) {
                    if (this.awaitingPositionFromClient == null
@@ -119,7 +119,7 @@
                       }
                    }
                 } else {
-@@ -1196,9 +1210,12 @@
+@@ -1196,9 +_,12 @@
                 }
  
                 CompletableFuture<FilteredText> completablefuture = this.filterTextPacket(playerchatmessage.signedContent());
@@ -134,7 +134,7 @@
                       this.broadcastChatMessage(playerchatmessage1);
                    }, p_300782_));
              });
-@@ -1466,7 +1483,7 @@
+@@ -1466,7 +_,7 @@
           }
  
           AABB aabb = entity.getBoundingBox();
@@ -143,7 +143,7 @@
              p_9866_.dispatch(
                 new ServerboundInteractPacket.Handler() {
                    private void performInteraction(InteractionHand p_143679_, ServerGamePacketListenerImpl.EntityInteraction p_143680_) {
-@@ -1731,7 +1748,7 @@
+@@ -1731,7 +_,7 @@
           throw new IllegalStateException("Client acknowledged config, but none was requested");
        } else {
           this.connection
@@ -152,7 +152,7 @@
        }
     }
  
-@@ -1766,5 +1783,16 @@
+@@ -1766,5 +_,16 @@
     @FunctionalInterface
     interface EntityInteraction {
        InteractionResult run(ServerPlayer p_143695_, Entity p_143696_, InteractionHand p_143697_);

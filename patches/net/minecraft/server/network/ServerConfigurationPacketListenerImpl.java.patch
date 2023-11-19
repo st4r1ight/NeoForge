@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
-@@ -12,11 +12,7 @@
+@@ -12,11 +_,7 @@
  import net.minecraft.network.TickablePacketListener;
  import net.minecraft.network.chat.Component;
  import net.minecraft.network.protocol.PacketUtils;
@@ -13,7 +13,7 @@
  import net.minecraft.network.protocol.common.custom.BrandPayload;
  import net.minecraft.network.protocol.configuration.ClientboundRegistryDataPacket;
  import net.minecraft.network.protocol.configuration.ClientboundUpdateEnabledFeaturesPacket;
-@@ -31,6 +27,10 @@
+@@ -31,6 +_,10 @@
  import net.minecraft.server.players.PlayerList;
  import net.minecraft.tags.TagNetworkSerialization;
  import net.minecraft.world.flag.FeatureFlags;
@@ -24,7 +24,7 @@
  import org.slf4j.Logger;
  
  public class ServerConfigurationPacketListenerImpl extends ServerCommonPacketListenerImpl implements TickablePacketListener, ServerConfigurationPacketListener {
-@@ -41,6 +41,8 @@
+@@ -41,6 +_,8 @@
     @Nullable
     private ConfigurationTask currentTask;
     private ClientInformation clientInformation;
@@ -33,7 +33,7 @@
  
     public ServerConfigurationPacketListenerImpl(MinecraftServer p_294645_, Connection p_295787_, CommonListenerCookie p_302003_) {
        super(p_294645_, p_295787_, p_302003_);
-@@ -65,6 +67,11 @@
+@@ -65,6 +_,11 @@
     }
  
     public void startConfiguration() {
@@ -45,7 +45,7 @@
        this.send(new ClientboundCustomPayloadPacket(new BrandPayload(this.server.getServerModName())));
        LayeredRegistryAccess<RegistryLayer> layeredregistryaccess = this.server.registries();
        this.send(new ClientboundUpdateEnabledFeaturesPacket(FeatureFlags.REGISTRY.toNames(this.server.getWorldData().enabledFeatures())));
-@@ -86,6 +93,10 @@
+@@ -86,6 +_,10 @@
  
     private void addOptionalTasks() {
        this.server.getServerResourcePack().ifPresent(p_296496_ -> this.configurationTasks.add(new ServerResourcePackConfigurationTask(p_296496_)));
@@ -56,7 +56,7 @@
     }
  
     @Override
-@@ -100,7 +111,40 @@
+@@ -100,7 +_,40 @@
           this.finishCurrentTask(ServerResourcePackConfigurationTask.TYPE);
        }
     }
@@ -98,7 +98,7 @@
     @Override
     public void handleConfigurationFinished(ServerboundFinishConfigurationPacket p_294283_) {
        this.connection.suspendInboundAfterProtocolChange();
-@@ -121,7 +165,7 @@
+@@ -121,7 +_,7 @@
           }
  
           ServerPlayer serverplayer = playerlist.getPlayerForLogin(this.gameProfile, this.clientInformation);
@@ -107,7 +107,7 @@
           this.connection.resumeInboundAfterProtocolChange();
        } catch (Exception exception) {
           LOGGER.error("Couldn't place player in world", (Throwable)exception);
-@@ -147,7 +191,8 @@
+@@ -147,7 +_,8 @@
        }
     }
  
@@ -117,7 +117,7 @@
        ConfigurationTask.Type configurationtask$type = this.currentTask != null ? this.currentTask.type() : null;
        if (!p_294853_.equals(configurationtask$type)) {
           throw new IllegalStateException("Unexpected request for task finish, current task: " + configurationtask$type + ", requested: " + p_294853_);
-@@ -155,5 +200,15 @@
+@@ -155,5 +_,15 @@
           this.currentTask = null;
           this.startNextTask();
        }
